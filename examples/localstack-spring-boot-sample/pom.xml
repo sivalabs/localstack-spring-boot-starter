@@ -20,7 +20,7 @@
 		<java.version>1.8</java.version>
 		<aws-java-sdk.version>1.11.852</aws-java-sdk.version>
 		<testcontainers.version>1.14.3</testcontainers.version>
-		<localstack-starter.version>0.0.1-SNAPSHOT</localstack-starter.version>
+		<localstack-starter.version>0.0.2-SNAPSHOT</localstack-starter.version>
 		<awaitility.version>4.0.3</awaitility.version>
 	</properties>
 
