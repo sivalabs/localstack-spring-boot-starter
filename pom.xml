@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0       http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.sivalabs</groupId>
     <artifactId>localstack-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>localstack-spring-boot-starter</name>
     <description>SpringBoot starter for LocalStack</description>
     <url>https://github.com/sivalabs/localstack-spring-boot-starter</url>
@@ -28,7 +28,7 @@
         <connection>scm:git:https://github.com/sivalabs/localstack-spring-boot-starter.git</connection>
         <developerConnection>scm:git:https://github.com/sivalabs/localstack-spring-boot-starter.git</developerConnection>
         <url>https://github.com/sivalabs/localstack-spring-boot-starter</url>
-        <tag>localstack-spring-boot-starter-0.0.1</tag>
+        <tag>HEAD</tag>
     </scm>
     <distributionManagement>
         <snapshotRepository>
