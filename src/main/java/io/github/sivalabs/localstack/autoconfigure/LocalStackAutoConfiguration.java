@@ -1,5 +1,6 @@
 package io.github.sivalabs.localstack.autoconfigure;
 
+import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonDynamoDBConfiguration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonS3Configuration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSNSConfiguration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSQSConfiguration;
@@ -15,7 +16,8 @@ import org.springframework.core.Ordered;
         LocalStackContainerConfiguration.class,
         AmazonS3Configuration.class,
         AmazonSQSConfiguration.class,
-        AmazonSNSConfiguration.class
+        AmazonSNSConfiguration.class,
+        AmazonDynamoDBConfiguration.class
 })
 public class LocalStackAutoConfiguration {
 

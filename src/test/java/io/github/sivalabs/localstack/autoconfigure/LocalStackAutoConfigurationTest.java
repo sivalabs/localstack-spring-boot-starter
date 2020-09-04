@@ -1,11 +1,14 @@
 package io.github.sivalabs.localstack.autoconfigure;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import io.github.sivalabs.localstack.LocalStackProperties;
+import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonDynamoDBConfiguration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonS3Configuration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSNSConfiguration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSQSConfiguration;
@@ -22,17 +25,19 @@ public class LocalStackAutoConfigurationTest {
                     LocalStackAutoConfiguration.class,
                     AmazonS3Configuration.class,
                     AmazonSQSConfiguration.class,
-                    AmazonSNSConfiguration.class
+                    AmazonSNSConfiguration.class,
+                    AmazonDynamoDBConfiguration.class
                     ));
 
     @Test
     public void shouldAutoConfigureS3AndSQSBeans() {
         this.contextRunner
                 .withPropertyValues(
-                    "localstack.services=SQS,S3,SNS",
+                    "localstack.services=SQS,S3,SNS,DYNAMODB",
                     "localstack.s3.enabled=true",
                     "localstack.sqs.enabled=true",
-                    "localstack.sns.enabled=true"
+                    "localstack.sns.enabled=true",
+                    "localstack.dynamodb.enabled=true"
                 )
                 .run((context) -> {
                     assertThat(context).hasSingleBean(LocalStackProperties.class);
@@ -41,6 +46,8 @@ public class LocalStackAutoConfigurationTest {
                     assertThat(context).hasSingleBean(AmazonSQSAsync.class);
                     assertThat(context).hasSingleBean(AmazonSNS.class);
                     assertThat(context).hasSingleBean(AmazonSNSAsync.class);
+                    assertThat(context).hasSingleBean(AmazonDynamoDB.class);
+                    assertThat(context).hasSingleBean(AmazonDynamoDBAsync.class);
                     LocalStackProperties properties = context.getBean(LocalStackProperties.class);
                     assertThat(properties.isEnabled()).isTrue();
                 });
@@ -61,6 +68,8 @@ public class LocalStackAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
                     assertThat(context).doesNotHaveBean(AmazonSNS.class);
                     assertThat(context).doesNotHaveBean(AmazonSNSAsync.class);
+                    assertThat(context).doesNotHaveBean(AmazonDynamoDB.class);
+                    assertThat(context).doesNotHaveBean(AmazonDynamoDBAsync.class);
                 });
     }
 
@@ -80,6 +89,8 @@ public class LocalStackAutoConfigurationTest {
                     assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
                     assertThat(context).doesNotHaveBean(AmazonSNS.class);
                     assertThat(context).doesNotHaveBean(AmazonSNSAsync.class);
+                    assertThat(context).doesNotHaveBean(AmazonDynamoDB.class);
+                    assertThat(context).doesNotHaveBean(AmazonDynamoDBAsync.class);
                 });
     }
 }
