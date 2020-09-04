@@ -1,7 +1,8 @@
 # localstack-spring-boot-starter ![Build](https://github.com/sivalabs/localstack-spring-boot-starter/workflows/Master%20Branch%20CI/badge.svg)
 
 This is a SpringBoot starter for [LocalStack](https://github.com/localstack/localstack) auto-configuration.
-This starter will spin up *Localstack* docker container using [Testcontainers](https://www.testcontainers.org/) and auto-configure beans such as `AmazonS3`, `AmazonSQSAsync` etc.
+This starter will spin up the *Localstack* docker container using [Testcontainers](https://www.testcontainers.org/) 
+and auto-configure beans such as `AmazonS3`, `AmazonSQSAsync`, etc.
 
 ## How to use?
 
@@ -75,9 +76,9 @@ You can customize which AWS services to enable/disable as follows:
 | `localstack.sqs.enabled` | `true` | `true`|
 
 ## Note
-The implementation of this starter is inspired from [testcontainers-spring-boot](https://github.com/testcontainers/testcontainers-spring-boot).
-The `testcontainers-spring-boot` also provides localstack support, but it will only spin up docker container 
-and you will have to configure the beans like `AmazonS3`, `AmazonSQSAsync` etc yourself.
+The implementation of this starter is inspired by [testcontainers-spring-boot](https://github.com/testcontainers/testcontainers-spring-boot).
+The `testcontainers-spring-boot` also provides localstack support, but it will only spin up the docker container, and 
+you will have to configure the beans like `AmazonS3`, `AmazonSQSAsync` etc yourself.
 So, I created this starter which will auto-configure the beans based on configuration properties.
 
 ## Developer Notes

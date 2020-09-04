@@ -1,8 +1,10 @@
 package com.sivalabs.demo.services;
 
 import com.amazonaws.services.sqs.AmazonSQSAsync;
-import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.CreateQueueRequest;
+import com.amazonaws.services.sqs.model.CreateQueueResult;
+import com.amazonaws.services.sqs.model.GetQueueAttributesRequest;
+import com.amazonaws.services.sqs.model.GetQueueAttributesResult;
 import com.amazonaws.services.sqs.model.ListQueuesResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.SendMessageRequest;
@@ -11,27 +13,34 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
+
 @Service
 @RequiredArgsConstructor
 public class SQSService {
     private final AmazonSQSAsync amazonSQS;
 
-    public void createQueue(String queueName) {
+    public CreateQueueResult createQueue(String queueName) {
         CreateQueueRequest createQueueRequest = new CreateQueueRequest(queueName)
                 .addAttributesEntry("DelaySeconds", "60")
                 .addAttributesEntry("MessageRetentionPeriod", "86400");
-
-        try {
-            amazonSQS.createQueue(createQueueRequest);
-        } catch (AmazonSQSException e) {
-            if (!e.getErrorCode().equals("QueueAlreadyExists")) {
-                throw e;
-            }
-        }
+        return amazonSQS.createQueue(createQueueRequest);
     }
 
     public ListQueuesResult listQueues() {
         return amazonSQS.listQueues();
+    }
+
+    public String getQueueUrl(String queueName) {
+        return amazonSQS.getQueueUrl(queueName).getQueueUrl();
+    }
+
+    public GetQueueAttributesResult getQueueAttributes(String queueName) {
+        String queueUrl = amazonSQS.getQueueUrl(queueName).getQueueUrl();
+        GetQueueAttributesRequest request = new GetQueueAttributesRequest();
+        request.setQueueUrl(queueUrl);
+        request.setAttributeNames(asList("QueueArn", "VisibilityTimeout"));
+        return amazonSQS.getQueueAttributes(request);
     }
 
     public void sendMessage(String queueName, String msg) {

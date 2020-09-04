@@ -3,6 +3,7 @@ package io.github.sivalabs.localstack.autoconfigure.configurator;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -20,10 +21,18 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnProperty(prefix = "localstack", name = "sqs.enabled", havingValue = "true", matchIfMissing = true)
 @ConditionalOnClass(AmazonSQS.class)
 @AutoConfigureAfter(name = BEAN_NAME_LOCALSTACK)
-public class AmazonSqsConfiguration extends AbstractAmazonClient {
+public class AmazonSQSConfiguration extends AbstractAmazonClient {
 
-    public AmazonSqsConfiguration(LocalStackContainer localStackContainer) {
+    public AmazonSQSConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);
+    }
+
+    @Bean
+    @Primary
+    public AmazonSQS amazonSQSLocalStack() {
+        AmazonSQSClientBuilder builder = AmazonSQSClientBuilder.standard();
+        builder.withEndpointConfiguration(getEndpointConfiguration(SQS));
+        return builder.build();
     }
 
     @Bean
