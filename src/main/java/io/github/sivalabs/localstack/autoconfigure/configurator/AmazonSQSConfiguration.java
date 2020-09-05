@@ -3,7 +3,6 @@ package io.github.sivalabs.localstack.autoconfigure.configurator;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
-import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -25,14 +24,6 @@ public class AmazonSQSConfiguration extends AbstractAmazonClient {
 
     public AmazonSQSConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);
-    }
-
-    @Bean
-    @Primary
-    public AmazonSQS amazonSQSLocalStack() {
-        AmazonSQSClientBuilder builder = AmazonSQSClientBuilder.standard();
-        builder.withEndpointConfiguration(getEndpointConfiguration(SQS));
-        return builder.build();
     }
 
     @Bean

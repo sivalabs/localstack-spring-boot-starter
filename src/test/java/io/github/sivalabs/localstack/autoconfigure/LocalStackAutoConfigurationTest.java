@@ -42,11 +42,8 @@ public class LocalStackAutoConfigurationTest {
                 .run((context) -> {
                     assertThat(context).hasSingleBean(LocalStackProperties.class);
                     assertThat(context).hasSingleBean(AmazonS3.class);
-                    assertThat(context).hasSingleBean(AmazonSQS.class);
                     assertThat(context).hasSingleBean(AmazonSQSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonSNS.class);
                     assertThat(context).hasSingleBean(AmazonSNSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonDynamoDB.class);
                     assertThat(context).hasSingleBean(AmazonDynamoDBAsync.class);
                     LocalStackProperties properties = context.getBean(LocalStackProperties.class);
                     assertThat(properties.isEnabled()).isTrue();
@@ -64,11 +61,8 @@ public class LocalStackAutoConfigurationTest {
                 .run((context) -> {
                     assertThat(context).hasSingleBean(LocalStackProperties.class);
                     assertThat(context).hasSingleBean(AmazonS3.class);
-                    assertThat(context).doesNotHaveBean(AmazonSQS.class);
                     assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonSNS.class);
                     assertThat(context).doesNotHaveBean(AmazonSNSAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonDynamoDB.class);
                     assertThat(context).doesNotHaveBean(AmazonDynamoDBAsync.class);
                 });
     }
@@ -85,11 +79,8 @@ public class LocalStackAutoConfigurationTest {
                 .run((context) -> {
                     assertThat(context).doesNotHaveBean(LocalStackProperties.class);
                     assertThat(context).doesNotHaveBean(AmazonS3.class);
-                    assertThat(context).doesNotHaveBean(AmazonSQS.class);
                     assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonSNS.class);
                     assertThat(context).doesNotHaveBean(AmazonSNSAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonDynamoDB.class);
                     assertThat(context).doesNotHaveBean(AmazonDynamoDBAsync.class);
                 });
     }

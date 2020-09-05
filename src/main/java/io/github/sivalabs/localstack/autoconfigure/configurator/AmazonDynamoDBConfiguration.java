@@ -3,7 +3,6 @@ package io.github.sivalabs.localstack.autoconfigure.configurator;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClientBuilder;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -25,14 +24,6 @@ public class AmazonDynamoDBConfiguration extends AbstractAmazonClient {
 
     public AmazonDynamoDBConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);
-    }
-
-    @Bean
-    @Primary
-    public AmazonDynamoDB amazonDynamoDBLocalStack() {
-        AmazonDynamoDBClientBuilder builder = AmazonDynamoDBClientBuilder.standard();
-        builder.withEndpointConfiguration(getEndpointConfiguration(DYNAMODB));
-        return builder.build();
     }
 
     @Bean

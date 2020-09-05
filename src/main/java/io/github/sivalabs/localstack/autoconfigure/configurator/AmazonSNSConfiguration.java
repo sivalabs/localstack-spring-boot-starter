@@ -3,7 +3,6 @@ package io.github.sivalabs.localstack.autoconfigure.configurator;
 import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
-import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -25,14 +24,6 @@ public class AmazonSNSConfiguration extends AbstractAmazonClient {
 
     public AmazonSNSConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);
-    }
-
-    @Primary
-    @Bean
-    public AmazonSNS amazonSNSLocalStack() {
-        AmazonSNSClientBuilder builder = AmazonSNSClientBuilder.standard();
-        builder.withEndpointConfiguration(getEndpointConfiguration(SNS));
-        return builder.build();
     }
 
     @Primary
