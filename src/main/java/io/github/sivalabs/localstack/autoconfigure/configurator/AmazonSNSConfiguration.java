@@ -1,25 +1,19 @@
 package io.github.sivalabs.localstack.autoconfigure.configurator;
 
-import com.amazonaws.services.sns.AmazonSNS;
 import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
-import static io.github.sivalabs.localstack.LocalStackProperties.BEAN_NAME_LOCALSTACK;
+import static io.github.sivalabs.localstack.LocalStackProperties.ENABLE_SERVICE_BY_DEFAULT;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.SNS;
 
-@Configuration
-@ConditionalOnExpression("${localstack.enabled:true}")
-@ConditionalOnProperty(prefix = "localstack", name = "sns.enabled", havingValue = "true", matchIfMissing = true)
-@ConditionalOnClass(AmazonSNS.class)
-@AutoConfigureAfter(name = BEAN_NAME_LOCALSTACK)
+@ConditionalOnLocalStackService
+@ConditionalOnProperty(name = "localstack.sns.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
+@ConditionalOnClass(AmazonSNSAsync.class)
 public class AmazonSNSConfiguration extends AbstractAmazonClient {
 
     public AmazonSNSConfiguration(LocalStackContainer localStackContainer) {
@@ -29,8 +23,9 @@ public class AmazonSNSConfiguration extends AbstractAmazonClient {
     @Primary
     @Bean
     public AmazonSNSAsync amazonSNSAsyncLocalStack() {
-        AmazonSNSAsyncClientBuilder builder = AmazonSNSAsyncClientBuilder.standard();
-        builder.withEndpointConfiguration(getEndpointConfiguration(SNS));
-        return builder.build();
+        return AmazonSNSAsyncClientBuilder.standard()
+                .withEndpointConfiguration(getEndpointConfiguration(SNS))
+                .withCredentials(getCredentialsProvider())
+                .build();
     }
 }

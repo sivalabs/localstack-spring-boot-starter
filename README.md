@@ -63,7 +63,7 @@ The following configuration properties are available to customize the default be
 | `localstack.defaultRegion` | no | `us-east-1` |
 | `localstack.hostname` | no | `localhost` |
 | `localstack.hostnameExternal` | no | `localhost` |
-| `localstack.dockerImage` | no | `localstack/localstack:0.10.8` |
+| `localstack.dockerImage` | no | `localstack/localstack:0.11.2` |
 | `localstack.useSsl` | no | `false` |
 | `localstack.services` | no | `""` |
 

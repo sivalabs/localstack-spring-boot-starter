@@ -1,2 +1,0 @@
-# Auto Configure
-#org.springframework.boot.autoconfigure.EnableAutoConfiguration=io.github.sivalabs.localstack.autoconfigure.LocalStackAutoConfiguration,io.github.sivalabs.localstack.autoconfigure.configurator.AmazonS3Configuration,io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSqsConfiguration

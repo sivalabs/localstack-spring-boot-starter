@@ -14,6 +14,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static io.github.sivalabs.localstack.LocalStackProperties.BEAN_NAME_LOCALSTACK;
 
@@ -29,7 +30,6 @@ public class LocalStackContainerConfiguration {
     @Bean(name = BEAN_NAME_LOCALSTACK, destroyMethod = "stop")
     public LocalStackContainer localStack(ConfigurableEnvironment environment,
                                           LocalStackProperties properties) {
-
         log.info("Starting Localstack server. Docker image: {}", properties.getDockerImage());
 
         LocalStackContainer localStackContainer = new EmbeddedLocalStackContainer(properties.getDockerImage());
@@ -37,8 +37,7 @@ public class LocalStackContainerConfiguration {
                 .withEnv("DEFAULT_REGION", properties.getDefaultRegion())
                 .withEnv("HOSTNAME", properties.getHostname())
                 .withEnv("HOSTNAME_EXTERNAL", properties.getHostnameExternal())
-                .withEnv("USE_SSL", String.valueOf(properties.isUseSsl()))
-        ;
+                .withEnv("USE_SSL", String.valueOf(properties.isUseSsl()));
 
         for (LocalStackContainer.Service service : properties.getServices()) {
             localStackContainer.withServices(service);
@@ -53,14 +52,14 @@ public class LocalStackContainerConfiguration {
                                                LocalStackProperties properties) {
         String host = localStack.getContainerIpAddress();
 
-        LinkedHashMap<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new LinkedHashMap<>();
         map.put("localstack.host", host);
         map.put("localstack.accessKey", localStack.getAccessKey());
         map.put("localstack.secretKey", localStack.getSecretKey());
         map.put("localstack.region", localStack.getRegion());
         String prefix = "localstack.";
         for (LocalStackContainer.Service service : properties.getServices()) {
-            map.put(prefix + service, localStack.getEndpointConfiguration(service).getServiceEndpoint());
+            map.put(prefix + service + ".endpoint", localStack.getEndpointConfiguration(service).getServiceEndpoint());
             map.put(prefix + service + ".port", localStack.getMappedPort(service.getPort()));
         }
         log.info("Started Localstack. Connection details: {}", map);
