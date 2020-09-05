@@ -1,4 +1,7 @@
-# localstack-spring-boot-starter ![Build](https://github.com/sivalabs/localstack-spring-boot-starter/workflows/Master%20Branch%20CI/badge.svg)
+# localstack-spring-boot-starter 
+
+![Build](https://github.com/sivalabs/localstack-spring-boot-starter/workflows/Build/badge.svg)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.sivalabs/localstack-spring-boot-starter)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.github.sivalabs%22)
 
 This is a SpringBoot starter for [LocalStack](https://github.com/localstack/localstack) auto-configuration.
 This starter will spin up the *Localstack* docker container using [Testcontainers](https://www.testcontainers.org/) 
