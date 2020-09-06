@@ -4,7 +4,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sivalabs/localstack-spring-boot-starter)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.github.sivalabs%22)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/sivalabs/localstack-spring-boot-starter/master/LICENSE)
 
-The `localstack-spring-boot-starter` a [SpringBoot](https://spring.io/projects/spring-boot) starter for [LocalStack](https://github.com/localstack/localstack) auto-configuration.
+`Localstack-spring-boot-starter` is a [SpringBoot](https://spring.io/projects/spring-boot) starter for [LocalStack](https://github.com/localstack/localstack) auto-configuration.
 This starter will spin up the *Localstack* docker container using [Testcontainers](https://www.testcontainers.org/) 
 and auto-configure beans such as `AmazonS3`, `AmazonSQSAsync`, etc.
 
@@ -21,7 +21,7 @@ Hence, the birth of `localstack-spring-boot-starter` :-)
 
 ## How to use?
 
-### Add the dependency
+### Add dependencies
 
 **Maven** 
 
@@ -83,7 +83,7 @@ public class LocalStackStarterDemoApplication {
 }
 ```
 
-#### How to use only for Integration Tests
+#### How to use only for Integration Tests?
 You may want to use `localstack-spring-boot-starter` only for testing. 
 In that case, you can add `@EnableLocalStack` annotation combined with `@Profile("integration-test")` annotation 
 so that the Localstack AutoConfiguration is only activated while running integration tests.
@@ -134,7 +134,7 @@ You can customize which AWS services to enable/disable as follows:
 
 | Property  | Value | Default Value |
 | --------- | ----- | ------------- |
-| `localstack.services` | `SQS,S3,SNS,DYNAMODB,DYNAMODBSTREAMS,KINESIS,IAM,LAMBDA,CLOUDWATCH,SECRETSMANAGER` | `""`|
+| `localstack.services` | `SQS, S3, SNS, DYNAMODB, DYNAMODBSTREAMS, KINESIS, IAM, LAMBDA, CLOUDWATCH, SECRETSMANAGER` | `""`|
 | `localstack.s3.enabled`               | `false`   | `true`|
 | `localstack.sqs.enabled`              | `true`    | `true`|
 | `localstack.sns.enabled`              | `false`   | `true`|
