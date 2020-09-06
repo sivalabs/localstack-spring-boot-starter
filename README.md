@@ -2,10 +2,22 @@
 
 ![Build](https://github.com/sivalabs/localstack-spring-boot-starter/workflows/Build/badge.svg)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sivalabs/localstack-spring-boot-starter)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.github.sivalabs%22)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/sivalabs/localstack-spring-boot-starter/master/LICENSE)
 
-This is a SpringBoot starter for [LocalStack](https://github.com/localstack/localstack) auto-configuration.
+The `localstack-spring-boot-starter` a [SpringBoot](https://spring.io/projects/spring-boot) starter for [LocalStack](https://github.com/localstack/localstack) auto-configuration.
 This starter will spin up the *Localstack* docker container using [Testcontainers](https://www.testcontainers.org/) 
 and auto-configure beans such as `AmazonS3`, `AmazonSQSAsync`, etc.
+
+## Motivation
+[LocalStack](https://github.com/localstack/localstack) provides an easy-to-use test/mocking framework for developing AWS based Cloud applications.
+We can use [Testcontainers](https://www.testcontainers.org/modules/localstack/) to spin up a *Localstack* docker container, 
+but we need to configure Amazon service clients like `AmazonS3`, `AmazonSQSAsync` which is typical boilerplate that we copy-paste from project to project.
+Instead of copy-pasting the code snippets, creating a SpringBoot starter which autoconfigures the Amazon service clients is a better approach and less error prone.
+Hence, the birth of `localstack-spring-boot-starter` :-)
+
+## Requirements
+* JDK 8+
+* Tested with SpringBoot 2.3.3.RELEASE, should work fine with any SpringBoot 2.x versions
 
 ## How to use?
 
@@ -14,20 +26,36 @@ and auto-configure beans such as `AmazonS3`, `AmazonSQSAsync`, etc.
 **Maven** 
 
 ```xml
-<dependency>
-    <groupId>io.github.sivalabs</groupId>
-    <artifactId>localstack-spring-boot-starter</artifactId>
-    <version>0.0.1</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>io.github.sivalabs</groupId>
+        <artifactId>localstack-spring-boot-starter</artifactId>
+        <version>0.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>localstack</artifactId>
+        <version>1.14.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.amazonaws</groupId>
+        <artifactId>aws-java-sdk</artifactId>
+        <version>1.11.852</version>
+    </dependency>
+</dependencies>
 ```
 
 **Gradle**
 
 ```groovy
 implementation 'io.github.sivalabs:localstack-spring-boot-starter:0.0.1'
+implementation 'org.testcontainers:localstack:1.14.3'
+implementation 'com.amazonaws:aws-java-sdk:1.11.852'
 ```
 
 ### Enable LocalStack AutoConfiguration
+You can enable LocalStack AutoConfiguration by adding `@EnableLocalStack` annotation to either main entrypoint class or 
+any `@Configuration` class.
 
 ```java
 package com.sivalabs.demo;
@@ -55,34 +83,86 @@ public class LocalStackStarterDemoApplication {
 }
 ```
 
+#### How to use only for Integration Tests
+You may want to use `localstack-spring-boot-starter` only for testing. 
+In that case, you can add `@EnableLocalStack` annotation combined with `@Profile("integration-test")` annotation 
+so that the Localstack AutoConfiguration is only activated while running integration tests.
+
+```java
+@Configuration
+@EnableLocalStack
+@Profile("integration-test")
+public class TestConfig {
+}
+```
+
+You can activate `integration-test` profile using `@ActiveProfiles` as follows:
+
+```java
+@SpringBootTest
+@ActiveProfiles("integration-test")
+class SomeIntegrationTest {
+    @Autowired
+    private AmazonS3 amazonS3;
+    
+    @Autowired
+    private AmazonSQSAsync amazonSQS;
+
+    @Test
+    void someTest() {
+
+    }
+} 
+```
+
 ### Configuration
 
 The following configuration properties are available to customize the default behaviour.
 
 | Property | Required | Default Value |
-| --- | --- | --- |
-| `localstack.enabled` | no | `true` |
-| `localstack.edgePort` | no | `4566` |
-| `localstack.defaultRegion` | no | `us-east-1` |
-| `localstack.hostname` | no | `localhost` |
-| `localstack.hostnameExternal` | no | `localhost` |
-| `localstack.dockerImage` | no | `localstack/localstack:0.11.2` |
-| `localstack.useSsl` | no | `false` |
-| `localstack.services` | no | `""` |
+| -------- | -------- | ------------- |
+| `localstack.enabled`          | no | `true`       |
+| `localstack.edgePort`         | no | `4566`       |
+| `localstack.defaultRegion`    | no | `us-east-1`  |
+| `localstack.hostname`         | no | `localhost`  |
+| `localstack.hostnameExternal` | no | `localhost`  |
+| `localstack.dockerImage`      | no | `localstack/localstack:0.11.2` |
+| `localstack.useSsl`           | no | `false`      |
+| `localstack.services`         | no | `""`         |
 
 You can customize which AWS services to enable/disable as follows:
 
 | Property  | Value | Default Value |
-| --- | --- | --- |
-| `localstack.services` | `S3,SQS,DYNAMODB,SNS` | `""`|
-| `localstack.s3.enabled` | `false` | `true`|
-| `localstack.sqs.enabled` | `true` | `true`|
+| --------- | ----- | ------------- |
+| `localstack.services` | `SQS,S3,SNS,DYNAMODB,DYNAMODBSTREAMS,KINESIS,IAM,LAMBDA,CLOUDWATCH,SECRETSMANAGER` | `""`|
+| `localstack.s3.enabled`               | `false`   | `true`|
+| `localstack.sqs.enabled`              | `true`    | `true`|
+| `localstack.sns.enabled`              | `false`   | `true`|
+| `localstack.dynamodb.enabled`         | `true`    | `true`|
+| `localstack.dynamodbstreams.enabled`  | `false`   | `true`|
+| `localstack.kinesis.enabled`          | `true`    | `true`|
+| `localstack.iam.enabled`              | `false`   | `true`|
+| `localstack.secretsmanager.enabled`   | `true`    | `true`|
+| `localstack.lambda.enabled`           | `false`   | `true`|
+| `localstack.cloudwatch.enabled`       | `true`    | `true`|
 
-## Note
-The implementation of this starter is inspired by [testcontainers-spring-boot](https://github.com/testcontainers/testcontainers-spring-boot).
-The `testcontainers-spring-boot` also provides localstack support, but it will only spin up the docker container, and 
-you will have to configure the beans like `AmazonS3`, `AmazonSQSAsync` etc yourself.
-So, I created this starter which will auto-configure the beans based on configuration properties.
+## Examples
+* [Minimal SpringBoot application](https://github.com/sivalabs/localstack-spring-boot-starter/tree/master/examples/localstack-spring-boot-sample)
+
+## Want to Contribute?
+
+You can contribute to `localstack-spring-boot-starter` project in many ways:
+* Use the starter and report if there are any bugs by [opening an issue](https://github.com/sivalabs/localstack-spring-boot-starter/issues/new)
+* Add support for auto-configuration of [more services](https://github.com/localstack/localstack#overview)
+* Add more [example applications](https://github.com/sivalabs/localstack-spring-boot-starter/tree/v0.0.2/examples)
+
+## Credits
+The implementation of `localstack-spring-boot-starter` is inspired by [testcontainers-spring-boot](https://github.com/testcontainers/testcontainers-spring-boot).
+The `testcontainers-spring-boot` also provides localstack support, but it only spins up the docker container, and 
+you will have to configure the beans like `AmazonS3`, `AmazonSQSAsync` etc by yourself.
+
+## License
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/sivalabs/localstack-spring-boot-starter/master/LICENSE)
 
 ## Developer Notes
 

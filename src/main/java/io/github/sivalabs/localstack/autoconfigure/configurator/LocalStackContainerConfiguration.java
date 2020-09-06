@@ -72,6 +72,8 @@ public class LocalStackContainerConfiguration {
     private static void setSystemProperties(LocalStackContainer localStack) {
         System.setProperty("aws.accessKeyId", localStack.getAccessKey());
         System.setProperty("aws.secretKey", localStack.getAccessKey());
+        System.setProperty("com.amazonaws.sdk.disableCbor", "true");
+        System.setProperty("com.amazonaws.sdk.disableCertChecking", "true");
     }
 
     private static class EmbeddedLocalStackContainer extends LocalStackContainer {
