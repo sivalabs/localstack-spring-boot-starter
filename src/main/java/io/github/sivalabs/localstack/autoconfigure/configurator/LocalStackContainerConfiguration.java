@@ -1,8 +1,7 @@
 package io.github.sivalabs.localstack.autoconfigure.configurator;
 
 import io.github.sivalabs.localstack.LocalStackProperties;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,8 +12,8 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static io.github.sivalabs.localstack.LocalStackProperties.BEAN_NAME_LOCALSTACK;
 
@@ -22,9 +21,8 @@ import static io.github.sivalabs.localstack.LocalStackProperties.BEAN_NAME_LOCAL
 @ConditionalOnClass({LocalStackContainer.class})
 @ConditionalOnProperty(name = "localstack.enabled", matchIfMissing = true)
 @EnableConfigurationProperties(LocalStackProperties.class)
+@Slf4j
 public class LocalStackContainerConfiguration {
-
-    private static final Logger log = LoggerFactory.getLogger(LocalStackContainerConfiguration.class);
 
     @ConditionalOnMissingBean(name = BEAN_NAME_LOCALSTACK)
     @Bean(name = BEAN_NAME_LOCALSTACK, destroyMethod = "stop")
@@ -52,7 +50,7 @@ public class LocalStackContainerConfiguration {
                                                LocalStackProperties properties) {
         String host = localStack.getContainerIpAddress();
 
-        Map<String, Object> map = new LinkedHashMap<>();
+        Map<String, Object> map = new ConcurrentHashMap<>();
         map.put("localstack.host", host);
         map.put("localstack.accessKey", localStack.getAccessKey());
         map.put("localstack.secretKey", localStack.getSecretKey());
@@ -78,6 +76,7 @@ public class LocalStackContainerConfiguration {
 
     private static class EmbeddedLocalStackContainer extends LocalStackContainer {
         EmbeddedLocalStackContainer(final String dockerImageName) {
+            super();
             setDockerImageName(dockerImageName);
         }
     }

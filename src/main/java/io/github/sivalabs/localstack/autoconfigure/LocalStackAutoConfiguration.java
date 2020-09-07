@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 
 @Configuration
-@AutoConfigureOrder(value = Ordered.HIGHEST_PRECEDENCE)
+@AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @Import({
         LocalStackContainerConfiguration.class,
         AmazonS3Configuration.class,

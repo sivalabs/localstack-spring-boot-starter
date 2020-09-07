@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @ConfigurationProperties(prefix = LocalStackProperties.LOCALSTACK_PREFIX)
 @Setter
@@ -21,8 +22,8 @@ public class LocalStackProperties {
     private String hostname = "localhost";
     private String hostnameExternal = "localhost";
     private String dockerImage = "localstack/localstack:0.11.2";
-    private boolean useSsl = false;
-    private Collection<LocalStackContainer.Service> services;
+    private boolean useSsl;
+    private Collection<LocalStackContainer.Service> services = Collections.emptyList();
 
     private S3Properties s3 = new S3Properties();
     private SQSProperties sqs = new SQSProperties();

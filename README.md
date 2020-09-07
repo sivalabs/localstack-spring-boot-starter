@@ -1,6 +1,7 @@
-# localstack-spring-boot-starter 
+# Localstack SpringBoot Starter 
 
 ![Build](https://github.com/sivalabs/localstack-spring-boot-starter/workflows/Build/badge.svg)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=io.github.sivalabs%3Alocalstack-spring-boot-starter&metric=alert_status)](https://sonarcloud.io/dashboard?id=io.github.sivalabs%3Alocalstack-spring-boot-starter)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.sivalabs/localstack-spring-boot-starter)](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22io.github.sivalabs%22)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/sivalabs/localstack-spring-boot-starter/master/LICENSE)
 
@@ -163,6 +164,15 @@ you will have to configure the beans like `AmazonS3`, `AmazonSQSAsync` etc by yo
 
 ## License
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://raw.githubusercontent.com/sivalabs/localstack-spring-boot-starter/master/LICENSE)
+
+## Change Log
+
+### Release 0.0.1
+* Initial release with Auto Configuration for `S3` and `SQS` based on AWS Java SDK v1
+
+### Release 0.0.2
+* Added Auto Configuration for `SNS, DYNAMODB, DYNAMODBSTREAMS, KINESIS, IAM, LAMBDA, CLOUDWATCH` and `SECRETSMANAGER` based on AWS Java SDK v1
+
 
 ## Developer Notes
 

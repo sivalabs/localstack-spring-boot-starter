@@ -26,7 +26,7 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class LocalStackAutoConfigurationTest {
+class LocalStackAutoConfigurationTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withConfiguration(AutoConfigurations.of(
@@ -43,7 +43,7 @@ public class LocalStackAutoConfigurationTest {
                     ));
 
     @Test
-    public void shouldAutoConfigureAWSServiceClientsBasedOnDefaultConfiguration() {
+    void shouldAutoConfigureAWSServiceClientsBasedOnDefaultConfiguration() {
         this.contextRunner
                 .withPropertyValues(
                         "localstack.services=SQS,S3,SNS,DYNAMODB,DYNAMODBSTREAMS,KINESIS,IAM,LAMBDA,CLOUDWATCH,SECRETSMANAGER"
@@ -67,7 +67,7 @@ public class LocalStackAutoConfigurationTest {
     }
 
     @Test
-    public void shouldAutoConfigureAllEnabledAWSServiceClients() {
+    void shouldAutoConfigureAllEnabledAWSServiceClients() {
         this.contextRunner
                 .withPropertyValues(
                     "localstack.services=SQS,S3,SNS,DYNAMODB,DYNAMODBSTREAMS,KINESIS,IAM,LAMBDA,CLOUDWATCH,SECRETSMANAGER",
@@ -101,7 +101,7 @@ public class LocalStackAutoConfigurationTest {
     }
 
     @Test
-    public void shouldAutoConfigureOnlyEnabledAWSServiceClients() {
+    void shouldAutoConfigureOnlyEnabledAWSServiceClients() {
         this.contextRunner
                 .withPropertyValues(
                         "localstack.services=SQS,S3",
@@ -133,7 +133,7 @@ public class LocalStackAutoConfigurationTest {
     }
 
     @Test
-    public void shouldNotAutoConfigureAWSServiceClientsWhenLocalStackInNotEnabled() {
+    void shouldNotAutoConfigureAWSServiceClientsWhenLocalStackInNotEnabled() {
         this.contextRunner
                 .withPropertyValues(
                         "localstack.enabled=false",
