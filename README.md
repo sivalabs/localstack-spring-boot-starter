@@ -149,6 +149,7 @@ You can customize which AWS services to enable/disable as follows:
 
 ## Examples
 * [Minimal SpringBoot application](https://github.com/sivalabs/localstack-spring-boot-starter/tree/master/examples/localstack-spring-boot-sample)
+* [SpringCloud AWS application](https://github.com/sivalabs/localstack-spring-boot-starter/tree/master/examples/localstack-spring-cloud-aws-sample)
 
 ## Want to Contribute?
 
