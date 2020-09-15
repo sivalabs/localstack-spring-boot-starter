@@ -43,6 +43,11 @@ Hence, the birth of `localstack-spring-boot-starter` :-)
         <artifactId>aws-java-sdk</artifactId>
         <version>1.11.852</version>
     </dependency>
+    <dependency>
+        <groupId>software.amazon.awssdk</groupId>
+        <artifactId>aws-sdk-java</artifactId>
+        <version>2.13.7</version>
+    </dependency>
 </dependencies>
 ```
 
@@ -52,6 +57,7 @@ Hence, the birth of `localstack-spring-boot-starter` :-)
 implementation 'io.github.sivalabs:localstack-spring-boot-starter:0.0.1'
 implementation 'org.testcontainers:localstack:1.14.3'
 implementation 'com.amazonaws:aws-java-sdk:1.11.852'
+implementation 'software.amazon.awssdk:aws-sdk-java:2.13.7'
 ```
 
 ### Enable LocalStack AutoConfiguration
@@ -90,10 +96,41 @@ In that case, you can add `@EnableLocalStack` annotation combined with `@Profile
 so that the Localstack AutoConfiguration is only activated while running integration tests.
 
 ```java
+import io.github.sivalabs.localstack.EnableLocalStack;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+
 @Configuration
-@EnableLocalStack
-@Profile("integration-test")
-public class TestConfig {
+public class AppConfig {
+
+    @Configuration
+    @Profile("aws")
+    public static class AwsConfig {
+        private static final Regions REGION = Regions.US_EAST_1;
+        
+        @Bean
+        @Primary
+        public AmazonSQSAsync amazonSQSAsync() {
+            return AmazonSQSAsyncClientBuilder.standard()
+                .withRegion(REGION)
+                .build();
+        }
+    
+        @Bean
+        @Primary
+        public AmazonS3 amazonS3() {
+            return AmazonS3ClientBuilder.standard()
+                .withRegion(REGION)
+                .build();
+        }
+    }
+
+    @Configuration
+    @Profile("integration-test")
+    @EnableLocalStack
+    public static class LocalStackAwsConfig {
+
+    }
 }
 ```
 
@@ -111,7 +148,7 @@ class SomeIntegrationTest {
 
     @Test
     void someTest() {
-
+        amazonS3.createBucket("bucketName");
     }
 } 
 ```
@@ -122,14 +159,14 @@ The following configuration properties are available to customize the default be
 
 | Property | Required | Default Value |
 | -------- | -------- | ------------- |
-| `localstack.enabled`          | no | `true`       |
-| `localstack.edgePort`         | no | `4566`       |
-| `localstack.defaultRegion`    | no | `us-east-1`  |
-| `localstack.hostname`         | no | `localhost`  |
-| `localstack.hostnameExternal` | no | `localhost`  |
-| `localstack.dockerImage`      | no | `localstack/localstack:0.11.2` |
-| `localstack.useSsl`           | no | `false`      |
-| `localstack.services`         | no | `""`         |
+| `localstack.enabled`              | no | `true`       |
+| `localstack.edgePort`             | no | `4566`       |
+| `localstack.defaultRegion`        | no | `us-east-1`  |
+| `localstack.hostname`             | no | `localhost`  |
+| `localstack.hostnameExternal`     | no | `localhost`  |
+| `localstack.dockerImage`          | no | `localstack/localstack:0.11.2` |
+| `localstack.useSsl`               | no | `false`      |
+| `localstack.services`             | no | `""`         |
 
 You can customize which AWS services to enable/disable as follows:
 
@@ -146,6 +183,19 @@ You can customize which AWS services to enable/disable as follows:
 | `localstack.secretsmanager.enabled`   | `true`    | `true`|
 | `localstack.lambda.enabled`           | `false`   | `true`|
 | `localstack.cloudwatch.enabled`       | `true`    | `true`|
+
+You can create S3 buckets, SQS queues on start up of the application using the following properties.
+If you have both AWS Java SDK V1 and V2 on classpath then you can choose which version's client beans to use 
+for creation of S3 buckets, SQS queues using `localstack.initializer.version` property.
+
+| Property  | Value | Default Value |
+| --------- | ----- | ------------- |
+| `localstack.s3.buckets`                               | `bucket1,bucket2` | `""`   |
+| `localstack.s3.continue-on-bucket-creation-error`     | `false` or `true` | `false`|
+| `localstack.sqs.queues`                               | `queue1,queue2`   | `""`   |
+| `localstack.sqs.continue-on-queue-creation-error`     | `false` or `true` | `false`|
+| `localstack.initializer.version`                      | `v1` or `v2`      | `v1`   |
+
 
 ## Examples
 * [Minimal SpringBoot application](https://github.com/sivalabs/localstack-spring-boot-starter/tree/master/examples/localstack-spring-boot-sample)

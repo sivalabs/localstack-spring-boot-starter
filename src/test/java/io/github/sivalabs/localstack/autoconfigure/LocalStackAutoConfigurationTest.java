@@ -11,15 +11,15 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManagerAsync;
 import com.amazonaws.services.sns.AmazonSNSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import io.github.sivalabs.localstack.LocalStackProperties;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AWSLambdaConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AWSSecretsManagerConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonCloudWatchConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonDynamoDBConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonIAMConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonKinesisConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonS3Configuration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSNSConfiguration;
-import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSQSConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AWSLambdaConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AWSSecretsManagerConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonCloudWatchConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonDynamoDBConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonIAMConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonKinesisConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonS3Configuration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonSNSConfiguration;
+import io.github.sivalabs.localstack.autoconfigure.configurator.awsv1.AmazonSQSConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -72,7 +72,9 @@ class LocalStackAutoConfigurationTest {
                 .withPropertyValues(
                     "localstack.services=SQS,S3,SNS,DYNAMODB,DYNAMODBSTREAMS,KINESIS,IAM,LAMBDA,CLOUDWATCH,SECRETSMANAGER",
                     "localstack.s3.enabled=true",
+                    "localstack.s3.buckets=bucket1,bucket2",
                     "localstack.sqs.enabled=true",
+                    "localstack.sqs.queues=queue1,queue2",
                     "localstack.sns.enabled=true",
                     "localstack.dynamodb.enabled=true",
                     "localstack.dynamodbstreams.enabled=true",
@@ -106,6 +108,7 @@ class LocalStackAutoConfigurationTest {
                 .withPropertyValues(
                         "localstack.services=SQS,S3",
                         "localstack.s3.enabled=true",
+                        "localstack.s3.buckets=bucket1,bucket2",
                         "localstack.sqs.enabled=true",
                         "localstack.sns.enabled=true",
                         "localstack.dynamodb.enabled=false",

@@ -1,4 +1,4 @@
-package io.github.sivalabs.localstack.autoconfigure.configurator;
+package io.github.sivalabs.localstack.autoconfigure.configurator.awsv1;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

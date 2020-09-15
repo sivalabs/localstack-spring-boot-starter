@@ -7,6 +7,7 @@ import org.testcontainers.containers.localstack.LocalStackContainer;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @ConfigurationProperties(prefix = LocalStackProperties.LOCALSTACK_PREFIX)
 @Setter
@@ -25,6 +26,8 @@ public class LocalStackProperties {
     private boolean useSsl;
     private Collection<LocalStackContainer.Service> services = Collections.emptyList();
 
+    private Initializer initializer = new Initializer();
+
     private S3Properties s3 = new S3Properties();
     private SQSProperties sqs = new SQSProperties();
     private SNSProperties sns = new SNSProperties();
@@ -38,12 +41,22 @@ public class LocalStackProperties {
 
     @Setter
     @Getter
+    public static class Initializer {
+        private AwsSdkVersion version = AwsSdkVersion.V1;
+    }
+
+    @Setter
+    @Getter
     public static class S3Properties extends CommonProperties {
+        private List<String> buckets = Collections.emptyList();
+        private boolean continueOnBucketCreationError;
     }
 
     @Setter
     @Getter
     public static class SQSProperties extends CommonProperties {
+        private List<String> queues = Collections.emptyList();
+        private boolean continueOnQueueCreationError;
     }
 
     @Setter
@@ -90,5 +103,9 @@ public class LocalStackProperties {
     @Getter
     private static class CommonProperties {
         private boolean enabled = ENABLE_SERVICE_BY_DEFAULT;
+    }
+
+    public enum AwsSdkVersion {
+        V1, V2
     }
 }

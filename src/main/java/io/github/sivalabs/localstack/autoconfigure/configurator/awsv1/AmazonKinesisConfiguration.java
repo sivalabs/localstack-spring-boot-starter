@@ -1,7 +1,8 @@
-package io.github.sivalabs.localstack.autoconfigure.configurator;
+package io.github.sivalabs.localstack.autoconfigure.configurator.awsv1;
 
 import com.amazonaws.services.kinesis.AmazonKinesisAsync;
 import com.amazonaws.services.kinesis.AmazonKinesisAsyncClientBuilder;
+import io.github.sivalabs.localstack.autoconfigure.configurator.ConditionalOnLocalStackService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
