@@ -60,7 +60,6 @@ public class LocalStackContainerConfiguration {
         String prefix = "localstack.";
         for (LocalStackContainer.Service service : properties.getServices()) {
             map.put(prefix + service + ".endpoint", localStack.getEndpointConfiguration(service).getServiceEndpoint());
-            map.put(prefix + service + ".port", localStack.getMappedPort(service.getPort()));
         }
         log.info("Started Localstack. Connection details: {}", map);
 
