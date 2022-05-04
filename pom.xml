@@ -54,7 +54,7 @@
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
         <aws-java-sdk.version>1.11.852</aws-java-sdk.version>
-        <testcontainers.version>1.14.3</testcontainers.version>
+        <testcontainers.version>1.17.1</testcontainers.version>
     </properties>
 
     <dependencyManagement>
