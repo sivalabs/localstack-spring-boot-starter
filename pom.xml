@@ -4,15 +4,15 @@
     <groupId>io.github.sivalabs</groupId>
     <artifactId>localstack-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>localstack-spring-boot-starter</name>
     <description>SpringBoot starter for LocalStack</description>
     <url>https://github.com/sivalabs/localstack-spring-boot-starter</url>
 
     <licenses>
         <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
         </license>
     </licenses>
 
@@ -52,9 +52,9 @@
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <spring-boot.version>2.3.3.RELEASE</spring-boot.version>
+        <spring-boot.version>2.7.10</spring-boot.version>
         <aws-java-sdk.version>1.11.852</aws-java-sdk.version>
-        <testcontainers.version>1.17.1</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
     </properties>
 
     <dependencyManagement>

@@ -20,7 +20,7 @@ public class LocalStackProperties {
     private String defaultRegion = "us-east-1";
     private String hostname = "localhost";
     private String hostnameExternal = "localhost";
-    private String dockerImage = "localstack/localstack:0.11.2";
+    private String dockerImage = "localstack/localstack:2.0.0";
     private boolean useSsl = false;
     private Collection<LocalStackContainer.Service> services;
 

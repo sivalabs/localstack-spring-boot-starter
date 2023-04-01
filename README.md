@@ -119,32 +119,32 @@ class SomeIntegrationTest {
 
 The following configuration properties are available to customize the default behaviour.
 
-| Property | Required | Default Value |
-| -------- | -------- | ------------- |
-| `localstack.enabled`          | no | `true`       |
-| `localstack.edgePort`         | no | `4566`       |
-| `localstack.defaultRegion`    | no | `us-east-1`  |
-| `localstack.hostname`         | no | `localhost`  |
-| `localstack.hostnameExternal` | no | `localhost`  |
-| `localstack.dockerImage`      | no | `localstack/localstack:0.11.2` |
-| `localstack.useSsl`           | no | `false`      |
-| `localstack.services`         | no | `""`         |
+| Property                      | Required | Default Value                  |
+|-------------------------------|----------|--------------------------------|
+| `localstack.enabled`          | no       | `true`                         |
+| `localstack.edgePort`         | no       | `4566`                         |
+| `localstack.defaultRegion`    | no       | `us-east-1`                    |
+| `localstack.hostname`         | no       | `localhost`                    |
+| `localstack.hostnameExternal` | no       | `localhost`                    |
+| `localstack.dockerImage`      | no       | `localstack/localstack:0.11.2` |
+| `localstack.useSsl`           | no       | `false`                        |
+| `localstack.services`         | no       | `""`                           |
 
 You can customize which AWS services to enable/disable as follows:
 
-| Property  | Value | Default Value |
-| --------- | ----- | ------------- |
-| `localstack.services` | `SQS, S3, SNS, DYNAMODB, DYNAMODBSTREAMS, KINESIS, IAM, LAMBDA, CLOUDWATCH, SECRETSMANAGER` | `""`|
-| `localstack.s3.enabled`               | `false`   | `true`|
-| `localstack.sqs.enabled`              | `true`    | `true`|
-| `localstack.sns.enabled`              | `false`   | `true`|
-| `localstack.dynamodb.enabled`         | `true`    | `true`|
-| `localstack.dynamodbstreams.enabled`  | `false`   | `true`|
-| `localstack.kinesis.enabled`          | `true`    | `true`|
-| `localstack.iam.enabled`              | `false`   | `true`|
-| `localstack.secretsmanager.enabled`   | `true`    | `true`|
-| `localstack.lambda.enabled`           | `false`   | `true`|
-| `localstack.cloudwatch.enabled`       | `true`    | `true`|
+| Property                             | Value                                                                                       | Default Value |
+|--------------------------------------|---------------------------------------------------------------------------------------------|---------------|
+| `localstack.services`                | `SQS, S3, SNS, DYNAMODB, DYNAMODBSTREAMS, KINESIS, IAM, LAMBDA, CLOUDWATCH, SECRETSMANAGER` | `""`          |
+| `localstack.s3.enabled`              | `false`                                                                                     | `true`        |
+| `localstack.sqs.enabled`             | `true`                                                                                      | `true`        |
+| `localstack.sns.enabled`             | `false`                                                                                     | `true`        |
+| `localstack.dynamodb.enabled`        | `true`                                                                                      | `true`        |
+| `localstack.dynamodbstreams.enabled` | `false`                                                                                     | `true`        |
+| `localstack.kinesis.enabled`         | `true`                                                                                      | `true`        |
+| `localstack.iam.enabled`             | `false`                                                                                     | `true`        |
+| `localstack.secretsmanager.enabled`  | `true`                                                                                      | `true`        |
+| `localstack.lambda.enabled`          | `false`                                                                                     | `true`        |
+| `localstack.cloudwatch.enabled`      | `true`                                                                                      | `true`        |
 
 ## Examples
 * [Minimal SpringBoot application](https://github.com/sivalabs/localstack-spring-boot-starter/tree/master/examples/localstack-spring-boot-sample)
