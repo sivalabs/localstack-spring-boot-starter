@@ -16,8 +16,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnClass(AmazonKinesisAsync.class)
 public class AmazonKinesisConfiguration extends AbstractAmazonClient {
 
-    public AmazonKinesisConfiguration(LocalStackContainer localStackContainer) {
-        super(localStackContainer);
+    public AmazonKinesisConfiguration(LocalStackContainer localStack) {
+        super(localStack);
     }
 
     @Bean

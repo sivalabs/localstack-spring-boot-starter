@@ -16,8 +16,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnClass(AmazonIdentityManagementAsync.class)
 public class AmazonIAMConfiguration extends AbstractAmazonClient {
 
-    public AmazonIAMConfiguration(LocalStackContainer localStackContainer) {
-        super(localStackContainer);
+    public AmazonIAMConfiguration(LocalStackContainer localStack) {
+        super(localStack);
     }
 
     @Bean

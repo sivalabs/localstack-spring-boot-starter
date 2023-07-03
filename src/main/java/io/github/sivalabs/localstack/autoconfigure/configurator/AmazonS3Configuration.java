@@ -16,8 +16,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnClass(AmazonS3.class)
 public class AmazonS3Configuration extends AbstractAmazonClient {
 
-    public AmazonS3Configuration(LocalStackContainer localStackContainer) {
-        super(localStackContainer);
+    public AmazonS3Configuration(LocalStackContainer localStack) {
+        super(localStack);
     }
 
     @Bean

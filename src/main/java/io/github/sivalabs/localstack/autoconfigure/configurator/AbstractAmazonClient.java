@@ -10,15 +10,18 @@ import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 
 @RequiredArgsConstructor
 public abstract class AbstractAmazonClient {
-    protected final LocalStackContainer localStackContainer;
+    protected final LocalStackContainer localStack;
 
     protected EndpointConfiguration getEndpointConfiguration(Service service) {
-        return localStackContainer.getEndpointConfiguration(service);
+        return new EndpointConfiguration(
+                    localStack.getEndpointOverride(service).toString(),
+                    localStack.getRegion()
+                );
     }
 
     protected AWSCredentialsProvider getCredentialsProvider() {
         return new AWSStaticCredentialsProvider(
-                new BasicAWSCredentials(localStackContainer.getAccessKey(), localStackContainer.getSecretKey())
+                new BasicAWSCredentials(localStack.getAccessKey(), localStack.getSecretKey())
         );
     }
 }

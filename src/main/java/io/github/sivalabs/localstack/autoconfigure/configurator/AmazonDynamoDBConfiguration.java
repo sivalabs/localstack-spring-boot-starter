@@ -16,8 +16,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnClass(AmazonDynamoDBAsync.class)
 public class AmazonDynamoDBConfiguration extends AbstractAmazonClient {
 
-    public AmazonDynamoDBConfiguration(LocalStackContainer localStackContainer) {
-        super(localStackContainer);
+    public AmazonDynamoDBConfiguration(LocalStackContainer localStack) {
+        super(localStack);
     }
 
     @Bean

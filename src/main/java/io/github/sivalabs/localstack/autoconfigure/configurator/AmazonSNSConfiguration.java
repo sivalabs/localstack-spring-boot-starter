@@ -16,8 +16,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnClass(AmazonSNSAsync.class)
 public class AmazonSNSConfiguration extends AbstractAmazonClient {
 
-    public AmazonSNSConfiguration(LocalStackContainer localStackContainer) {
-        super(localStackContainer);
+    public AmazonSNSConfiguration(LocalStackContainer localStack) {
+        super(localStack);
     }
 
     @Primary

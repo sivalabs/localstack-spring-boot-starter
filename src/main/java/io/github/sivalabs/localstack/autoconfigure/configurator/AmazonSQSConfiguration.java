@@ -16,8 +16,8 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @ConditionalOnClass(AmazonSQSAsync.class)
 public class AmazonSQSConfiguration extends AbstractAmazonClient {
 
-    public AmazonSQSConfiguration(LocalStackContainer localStackContainer) {
-        super(localStackContainer);
+    public AmazonSQSConfiguration(LocalStackContainer localStack) {
+        super(localStack);
     }
 
     @Bean

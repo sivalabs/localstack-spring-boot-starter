@@ -16,8 +16,8 @@ Instead of copy-pasting the code snippets, creating a SpringBoot starter which a
 Hence, the birth of `localstack-spring-boot-starter` :-)
 
 ## Requirements
-* JDK 8+
-* Tested with SpringBoot 2.3.3.RELEASE, should work fine with any SpringBoot 2.x versions
+* JDK 17+
+* Tested with SpringBoot 3.1.1, should work fine with any SpringBoot 3.x versions
 
 ## How to use?
 
@@ -30,12 +30,12 @@ Hence, the birth of `localstack-spring-boot-starter` :-)
     <dependency>
         <groupId>io.github.sivalabs</groupId>
         <artifactId>localstack-spring-boot-starter</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.4</version>
     </dependency>
     <dependency>
         <groupId>org.testcontainers</groupId>
         <artifactId>localstack</artifactId>
-        <version>1.14.3</version>
+        <version>1.18.3</version>
     </dependency>
     <dependency>
         <groupId>com.amazonaws</groupId>
@@ -48,8 +48,8 @@ Hence, the birth of `localstack-spring-boot-starter` :-)
 **Gradle**
 
 ```groovy
-implementation 'io.github.sivalabs:localstack-spring-boot-starter:0.0.1'
-implementation 'org.testcontainers:localstack:1.14.3'
+implementation 'io.github.sivalabs:localstack-spring-boot-starter:0.0.4'
+implementation 'org.testcontainers:localstack:1.18.3'
 implementation 'com.amazonaws:aws-java-sdk:1.11.852'
 ```
 
@@ -119,16 +119,16 @@ class SomeIntegrationTest {
 
 The following configuration properties are available to customize the default behaviour.
 
-| Property                      | Required | Default Value                  |
-|-------------------------------|----------|--------------------------------|
-| `localstack.enabled`          | no       | `true`                         |
-| `localstack.edgePort`         | no       | `4566`                         |
-| `localstack.defaultRegion`    | no       | `us-east-1`                    |
-| `localstack.hostname`         | no       | `localhost`                    |
-| `localstack.hostnameExternal` | no       | `localhost`                    |
-| `localstack.dockerImage`      | no       | `localstack/localstack:0.11.2` |
-| `localstack.useSsl`           | no       | `false`                        |
-| `localstack.services`         | no       | `""`                           |
+| Property                      | Required | Default Value                 |
+|-------------------------------|----------|-------------------------------|
+| `localstack.enabled`          | no       | `true`                        |
+| `localstack.edgePort`         | no       | `4566`                        |
+| `localstack.defaultRegion`    | no       | `us-east-1`                   |
+| `localstack.hostname`         | no       | `localhost`                   |
+| `localstack.hostnameExternal` | no       | `localhost`                   |
+| `localstack.dockerImage`      | no       | `localstack/localstack:2.0.0` |
+| `localstack.useSsl`           | no       | `false`                       |
+| `localstack.services`         | no       | `""`                          |
 
 You can customize which AWS services to enable/disable as follows:
 

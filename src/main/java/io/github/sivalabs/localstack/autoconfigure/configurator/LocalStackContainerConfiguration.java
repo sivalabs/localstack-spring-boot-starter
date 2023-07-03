@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -30,9 +31,11 @@ public class LocalStackContainerConfiguration {
     @Bean(name = BEAN_NAME_LOCALSTACK, destroyMethod = "stop")
     public LocalStackContainer localStack(ConfigurableEnvironment environment,
                                           LocalStackProperties properties) {
-        log.info("Starting Localstack server. Docker image: {}", properties.getDockerImage());
+        log.info("Starting Localstack with Docker image: {}", properties.getDockerImage());
 
-        LocalStackContainer localStackContainer = new EmbeddedLocalStackContainer(properties.getDockerImage());
+        LocalStackContainer localStackContainer = new LocalStackContainer(
+                DockerImageName.parse(properties.getDockerImage())
+        );
         localStackContainer.withEnv("EDGE_PORT", String.valueOf(properties.getEdgePort()))
                 .withEnv("DEFAULT_REGION", properties.getDefaultRegion())
                 .withEnv("HOSTNAME", properties.getHostname())
@@ -59,7 +62,7 @@ public class LocalStackContainerConfiguration {
         map.put("localstack.region", localStack.getRegion());
         String prefix = "localstack.";
         for (LocalStackContainer.Service service : properties.getServices()) {
-            map.put(prefix + service + ".endpoint", localStack.getEndpointConfiguration(service).getServiceEndpoint());
+            map.put(prefix + service + ".endpoint", localStack.getEndpointOverride(service).toString());
         }
         log.info("Started Localstack. Connection details: {}", map);
 
@@ -73,11 +76,5 @@ public class LocalStackContainerConfiguration {
         System.setProperty("aws.secretKey", localStack.getAccessKey());
         System.setProperty("com.amazonaws.sdk.disableCbor", "true");
         System.setProperty("com.amazonaws.sdk.disableCertChecking", "true");
-    }
-
-    private static class EmbeddedLocalStackContainer extends LocalStackContainer {
-        EmbeddedLocalStackContainer(final String dockerImageName) {
-            setDockerImageName(dockerImageName);
-        }
     }
 }
