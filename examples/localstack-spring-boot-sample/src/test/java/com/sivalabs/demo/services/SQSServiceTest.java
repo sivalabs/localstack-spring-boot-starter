@@ -1,15 +1,11 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.sqs.model.ListQueuesResult;
-import com.amazonaws.services.sqs.model.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,33 +21,33 @@ class SQSServiceTest {
 
     @BeforeEach
     void setUp() {
-        sqsService.createQueue(queueName);
+        sqsService.createQueue(queueName).join();
         log.info("Created SQS Queue: {}", queueName);
     }
 
     @AfterEach
     void tearDown() {
-        sqsService.deleteQueue(queueName);
+        sqsService.deleteQueue(queueName).join();
         log.info("Deleted SQS Queue: {}", queueName);
     }
 
     @Test
     void shouldGetAllQueues() {
-        ListQueuesResult listQueuesResult = sqsService.listQueues();
+        var listQueuesResult = sqsService.listQueues().join();
 
-        assertThat(listQueuesResult.getQueueUrls()).isNotEmpty();
+        assertThat(listQueuesResult.queueUrls()).isNotEmpty();
 
-        for (String queueUrl : listQueuesResult.getQueueUrls()) {
+        for (String queueUrl : listQueuesResult.queueUrls()) {
             log.info("QueueUrl: {}", queueUrl);
         }
     }
 
     @Test
     public void sendAndReceiveSqsMessage() {
-        sqsService.sendMessage(queueName, "Test Message");
+        sqsService.sendMessage(queueName, "Test Message").join();
 
         await().atMost(15, SECONDS).untilAsserted(() -> {
-            List<Message> messages = sqsService.readMessages(queueName);
+            var messages = sqsService.readMessages(queueName, 10, 5).join().messages();
             assertThat(messages.size()).isEqualTo(1);
         });
     }

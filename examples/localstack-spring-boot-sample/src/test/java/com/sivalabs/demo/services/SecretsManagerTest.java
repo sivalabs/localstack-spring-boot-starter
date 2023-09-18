@@ -1,14 +1,12 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerAsync;
-import com.amazonaws.services.secretsmanager.model.CreateSecretRequest;
-import com.amazonaws.services.secretsmanager.model.CreateSecretResult;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
-import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerAsyncClient;
+import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,17 +15,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SecretsManagerTest {
 
     @Autowired
-    private AWSSecretsManagerAsync secretsManagerAsync;
+    private SecretsManagerAsyncClient secretsManagerAsync;
 
     @Test
     void shouldWorkWithSecretsManager() {
-        CreateSecretRequest createSecretRequest = new CreateSecretRequest()
-                .withName("db_password").withSecretString("secret");
-        CreateSecretResult secret = secretsManagerAsync.createSecret(createSecretRequest);
+        CreateSecretRequest createSecretRequest = CreateSecretRequest.builder().name("db_password").secretString("secret").build();
+        var secret = secretsManagerAsync.createSecret(createSecretRequest).join();
 
-        GetSecretValueRequest getSecretRequest = new GetSecretValueRequest().withSecretId(secret.getARN());
-        GetSecretValueResult secretValue = secretsManagerAsync.getSecretValue(getSecretRequest);
-        assertThat(secretValue.getName()).isEqualTo("db_password");
-        assertThat(secretValue.getSecretString()).isEqualTo("secret");
+        var getSecretRequest = GetSecretValueRequest.builder().secretId(secret.arn()).build();
+        var secretValue = secretsManagerAsync.getSecretValue(getSecretRequest).join();
+        assertThat(secretValue.name()).isEqualTo("db_password");
+        assertThat(secretValue.secretString()).isEqualTo("secret");
     }
 }

@@ -1,39 +1,37 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.sns.AmazonSNSAsync;
-import com.amazonaws.services.sns.model.CreateTopicRequest;
-import com.amazonaws.services.sns.model.CreateTopicResult;
-import com.amazonaws.services.sns.model.DeleteTopicResult;
-import com.amazonaws.services.sns.model.PublishRequest;
-import com.amazonaws.services.sns.model.PublishResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.sns.SnsAsyncClient;
+import software.amazon.awssdk.services.sns.model.*;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class SNSService {
 
-    private final AmazonSNSAsync amazonSNSAsync;
+    private final SnsAsyncClient snsAsyncClient;
 
-    public CreateTopicResult createTopic(String topicName) {
-        CreateTopicRequest createTopicRequest = new CreateTopicRequest(topicName);
-        CreateTopicResult createTopicResponse = amazonSNSAsync.createTopic(createTopicRequest);
-        log.debug("Created SNS Topic : {}", createTopicResponse.getTopicArn());
-        return createTopicResponse;
+    public CompletableFuture<CreateTopicResponse> createTopic(String topicName) {
+        return snsAsyncClient.createTopic(CreateTopicRequest.builder().name(topicName).build());
     }
 
-    public DeleteTopicResult deleteTopic(String topicName) {
-        CreateTopicResult topic = createTopic(topicName);
-        return amazonSNSAsync.deleteTopic(topic.getTopicArn());
+    public CompletableFuture<DeleteTopicResponse> deleteTopic(String topicArn) {
+        return snsAsyncClient.deleteTopic(DeleteTopicRequest.builder().topicArn(topicArn).build());
     }
 
-    public PublishResult sendMessage(String topicName, String msg) {
-        CreateTopicResult topic = createTopic(topicName);
-        PublishRequest publishRequest = new PublishRequest(topic.getTopicArn(), msg);
-        PublishResult publishResponse = amazonSNSAsync.publish(publishRequest);
-        log.debug("SNS MessageId: " + publishResponse.getMessageId());
-        return publishResponse;
+    public CompletableFuture<PublishResponse> sendMessage(String topicName, String msg) {
+        return createTopic(topicName).thenCompose(createTopicResponse -> {
+            String topicArn = createTopicResponse.topicArn();
+            System.out.println("The topic arn for topic "+ topicName + " is: " + topicArn);
+            return sendMessageByTopicArn(topicArn, msg);
+        });
+    }
+
+    public CompletableFuture<PublishResponse> sendMessageByTopicArn(String topicArn, String msg) {
+        return snsAsyncClient.publish(PublishRequest.builder().topicArn(topicArn).message(msg).build());
     }
 }

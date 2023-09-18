@@ -1,15 +1,11 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.kinesis.AmazonKinesisAsync;
-import com.amazonaws.services.kinesis.model.CreateStreamRequest;
-import com.amazonaws.services.kinesis.model.DescribeStreamRequest;
-import com.amazonaws.services.kinesis.model.DescribeStreamResult;
-import com.amazonaws.services.kinesis.model.ListStreamsRequest;
-import com.amazonaws.services.kinesis.model.ListStreamsResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import software.amazon.awssdk.services.kinesis.model.*;
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +18,7 @@ public class KinesisTest {
     private static final String streamName = "test_kinesis_stream";
 
     @Autowired
-    private AmazonKinesisAsync amazonKinesis;
+    private KinesisAsyncClient amazonKinesis;
 
     @Test
     void shouldCreateAndListKinesisStreams() throws Exception {
@@ -32,27 +28,28 @@ public class KinesisTest {
     }
 
     private List<String> listStreams() {
-        ListStreamsRequest listStreamsRequest = new ListStreamsRequest();
-        listStreamsRequest.setLimit(10);
-        ListStreamsResult listStreamsResult = amazonKinesis.listStreams(listStreamsRequest);
-        List<String> streamNames = listStreamsResult.getStreamNames();
-        while (listStreamsResult.isHasMoreStreams()) {
-            if (streamNames.size() > 0) {
-                listStreamsRequest.setExclusiveStartStreamName(streamNames.get(streamNames.size() - 1));
-            }
+        ListStreamsRequest listStreamsRequest = ListStreamsRequest.builder().limit(10).build();
+        var listStreamsResult = amazonKinesis.listStreams(listStreamsRequest).join();
+        List<String> streamNames = listStreamsResult.streamNames();
+        while (listStreamsResult.hasMoreStreams()) {
+            /*if (!streamNames.isEmpty()) {
+                listStreamsRequest.exclusiveStartStreamName(streamNames.get(streamNames.size() - 1));
+            }*/
+            var req = ListStreamsRequest.builder()
+                    .limit(10)
+                    .exclusiveStartStreamName(streamNames.get(streamNames.size() - 1))
+                    .build();
 
-            listStreamsResult = amazonKinesis.listStreams(listStreamsRequest);
-            streamNames.addAll(listStreamsResult.getStreamNames());
+            listStreamsResult = amazonKinesis.listStreams(req).join();
+            streamNames.addAll(listStreamsResult.streamNames());
         }
         return streamNames;
     }
 
     private void createStream(String streamName, Integer streamSize) throws InterruptedException {
         // Create a stream. The number of shards determines the provisioned throughput.
-        CreateStreamRequest createStreamRequest = new CreateStreamRequest();
-        createStreamRequest.setStreamName(streamName);
-        createStreamRequest.setShardCount(streamSize);
-        amazonKinesis.createStream(createStreamRequest);
+        var createStreamRequest = CreateStreamRequest.builder().streamName(streamName).shardCount(streamSize).build();
+        amazonKinesis.createStream(createStreamRequest).join();
         // The stream is now being created. Wait for it to become active.
         waitForStreamToBecomeAvailable(streamName);
     }
@@ -66,15 +63,15 @@ public class KinesisTest {
             Thread.sleep(TimeUnit.SECONDS.toMillis(10));
 
             try {
-                DescribeStreamRequest describeStreamRequest = new DescribeStreamRequest();
-                describeStreamRequest.setStreamName(streamName);
-                // ask for no more than 10 shards at a time -- this is an optional parameter
-                describeStreamRequest.setLimit(10);
-                DescribeStreamResult describeStreamResponse = amazonKinesis.describeStream(describeStreamRequest);
+                DescribeStreamRequest describeStreamRequest = DescribeStreamRequest.builder()
+                        .streamName(streamName)
+                        .limit(10)
+                        .build();
+                DescribeStreamResponse describeStreamResponse = amazonKinesis.describeStream(describeStreamRequest).join();
 
-                String streamStatus = describeStreamResponse.getStreamDescription().getStreamStatus();
+                var streamStatus = describeStreamResponse.streamDescription().streamStatus();
                 System.out.printf("\t- current state: %s\n", streamStatus);
-                if ("ACTIVE".equals(streamStatus)) {
+                if (StreamStatus.ACTIVE == streamStatus) {
                     return;
                 }
             } catch (Exception e) {

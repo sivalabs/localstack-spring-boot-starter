@@ -1,114 +1,117 @@
 package com.sivalabs.demo.services;
 
-
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ListVersionsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.S3VersionSummary;
-import com.amazonaws.services.s3.model.VersionListing;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.ResponseInputStream;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.paginators.ListObjectsV2Iterable;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class S3Service {
-    private final AmazonS3 amazonS3;
+    private final S3Client amazonS3;
 
-    public Bucket createBucket(String bucketName) {
-        return amazonS3.createBucket(bucketName);
+    public CreateBucketResponse createBucket(String bucketName) {
+        return amazonS3.createBucket(CreateBucketRequest.builder().bucket(bucketName).build());
     }
 
-    public List<Bucket> listBuckets() {
+    public ListBucketsResponse listBuckets() {
         return amazonS3.listBuckets();
     }
 
-    public S3Object getObject(String bucketName, String key) {
-        return amazonS3.getObject(bucketName, key);
+    public ResponseInputStream<GetObjectResponse> getObject(String bucketName, String key) {
+        return amazonS3.getObject(GetObjectRequest.builder().bucket(bucketName).key(key).build());
     }
 
-    public PutObjectResult store(String bucketName, String key, String value) {
-        return amazonS3.putObject(bucketName, key, value);
+    public PutObjectResponse store(String bucketName, String key, String value) {
+        return amazonS3.putObject(
+                PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+                RequestBody.fromString(value)
+        );
     }
 
-    public PutObjectResult store(String bucketName, String key, InputStream inputStream) {
-        return amazonS3.putObject(bucketName, key, inputStream, new ObjectMetadata());
+    public PutObjectResponse store(String bucketName, String key, InputStream inputStream, long contentLength) {
+        return amazonS3.putObject(
+                PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+                RequestBody.fromInputStream(inputStream, contentLength)
+        );
     }
 
-    public PutObjectResult store(String bucketName, String key, byte[] bytes) {
-        InputStream inputStream = new ByteArrayInputStream(bytes);
-        return store(bucketName, key, inputStream);
+    public PutObjectResponse store(String bucketName, String key, byte[] bytes) {
+        return amazonS3.putObject(
+                PutObjectRequest.builder().bucket(bucketName).key(key).build(),
+                RequestBody.fromBytes(bytes)
+        );
     }
 
-    public void deleteBucket(String bucketName) {
-        amazonS3.deleteBucket(bucketName);
+    public DeleteBucketResponse deleteBucket(String bucketName) {
+        return amazonS3.deleteBucket(DeleteBucketRequest.builder().bucket(bucketName).build());
     }
 
-    public void deleteBucketForce(String bucketName) {
-        try {
+    public DeleteBucketResponse deleteBucketForce(String bucketName) {
+//        try {
             // Delete all objects from the bucket. This is sufficient
             // for unversioned buckets. For versioned buckets, when you attempt to delete objects, Amazon S3 inserts
             // delete markers for all objects, but doesn't delete the object versions.
             // To delete objects from versioned buckets, delete all of the object versions before deleting
             // the bucket (see below for an example).
-            ObjectListing objectListing = amazonS3.listObjects(bucketName);
-            while (true) {
-                Iterator<S3ObjectSummary> objIter = objectListing.getObjectSummaries().iterator();
-                while (objIter.hasNext()) {
-                    amazonS3.deleteObject(bucketName, objIter.next().getKey());
-                }
+            ListObjectsV2Request listRequest =
+                    ListObjectsV2Request.builder()
+                            .bucket(bucketName)
+                            .build();
+            ListObjectsV2Iterable paginatedListResponse = amazonS3.listObjectsV2Paginator(listRequest);
 
-                // If the bucket contains many objects, the listObjects() call
-                // might not return all of the objects in the first listing. Check to
-                // see whether the listing was truncated. If so, retrieve the next page of objects
-                // and delete them.
-                if (objectListing.isTruncated()) {
-                    objectListing = amazonS3.listNextBatchOfObjects(objectListing);
-                } else {
+            for (ListObjectsV2Response listResponse : paginatedListResponse) {
+                List<ObjectIdentifier> objects =
+                        listResponse.contents().stream()
+                                .map(s3Object -> ObjectIdentifier.builder().key(s3Object.key()).build())
+                                .toList();
+
+                if (objects.isEmpty()) {
                     break;
                 }
+                DeleteObjectsRequest deleteRequest =
+                        DeleteObjectsRequest.builder()
+                                .bucket(bucketName)
+                                .delete(Delete.builder().objects(objects).build())
+                                .build();
+                amazonS3.deleteObjects(deleteRequest);
             }
 
-            // Delete all object versions (required for versioned buckets).
-            VersionListing versionList = amazonS3.listVersions(new ListVersionsRequest().withBucketName(bucketName));
-            while (true) {
-                Iterator<S3VersionSummary> versionIter = versionList.getVersionSummaries().iterator();
-                while (versionIter.hasNext()) {
-                    S3VersionSummary vs = versionIter.next();
-                    amazonS3.deleteVersion(bucketName, vs.getKey(), vs.getVersionId());
-                }
+            ListObjectVersionsRequest listVersionsRequest = ListObjectVersionsRequest.builder()
+                    .bucket(bucketName)
+                    .build();
 
-                if (versionList.isTruncated()) {
-                    versionList = amazonS3.listNextBatchOfVersions(versionList);
-                } else {
-                    break;
-                }
+            List<ObjectVersion> objectVersions = amazonS3.listObjectVersions(listVersionsRequest).versions();
+
+            // Delete all versions of objects
+            for (ObjectVersion objectVersion : objectVersions) {
+                DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(objectVersion.key())
+                        .versionId(objectVersion.versionId())
+                        .build();
+
+                amazonS3.deleteObject(deleteObjectRequest);
+                System.out.println("Deleted object: " + objectVersion.key() + " (Version ID: " + objectVersion.versionId() + ")");
             }
 
             // After all objects and object versions are deleted, delete the bucket.
-            amazonS3.deleteBucket(bucketName);
-        }
-        catch(AmazonServiceException e) {
-            // The call was transmitted successfully, but Amazon S3 couldn't process
-            // it, so it returned an error response.
-            e.printStackTrace();
-        }
-        catch(SdkClientException e) {
-            // Amazon S3 couldn't be contacted for a response, or the client couldn't
-            // parse the response from Amazon S3.
-            e.printStackTrace();
-        }
+            return amazonS3.deleteBucket(DeleteBucketRequest.builder().bucket(bucketName).build());
+//        } catch (AmazonServiceException e) {
+//            // The call was transmitted successfully, but Amazon S3 couldn't process
+//            // it, so it returned an error response.
+//            e.printStackTrace();
+//        } catch (SdkClientException e) {
+//            // Amazon S3 couldn't be contacted for a response, or the client couldn't
+//            // parse the response from Amazon S3.
+//            e.printStackTrace();
+//        }
     }
 
 }

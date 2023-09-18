@@ -1,15 +1,26 @@
 package io.github.sivalabs.localstack.autoconfigure;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsync;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBStreamsAsync;
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementAsync;
-import com.amazonaws.services.kinesis.AmazonKinesisAsync;
-import com.amazonaws.services.lambda.AWSLambdaAsync;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.secretsmanager.AWSSecretsManagerAsync;
-import com.amazonaws.services.sns.AmazonSNSAsync;
-import com.amazonaws.services.sqs.AmazonSQSAsync;
+
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsClient;
+import software.amazon.awssdk.services.iam.IamClient;
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient;
+import software.amazon.awssdk.services.kinesis.KinesisClient;
+import software.amazon.awssdk.services.lambda.LambdaClient;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.sns.SnsAsyncClient;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sqs.SqsAsyncClient;
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsAsyncClient;
+import software.amazon.awssdk.services.iam.IamAsyncClient;
+import software.amazon.awssdk.services.lambda.LambdaAsyncClient;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerAsyncClient;
+
 import io.github.sivalabs.localstack.LocalStackProperties;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AWSLambdaConfiguration;
 import io.github.sivalabs.localstack.autoconfigure.configurator.AWSSecretsManagerConfiguration;
@@ -23,6 +34,7 @@ import io.github.sivalabs.localstack.autoconfigure.configurator.AmazonSQSConfigu
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -53,16 +65,26 @@ public class LocalStackAutoConfigurationTest {
                     LocalStackProperties properties = context.getBean(LocalStackProperties.class);
                     assertThat(properties.isEnabled()).isTrue();
 
-                    assertThat(context).hasSingleBean(AmazonS3.class);
-                    assertThat(context).hasSingleBean(AmazonSQSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonSNSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonDynamoDBAsync.class);
-                    assertThat(context).hasSingleBean(AmazonDynamoDBStreamsAsync.class);
-                    assertThat(context).hasSingleBean(AmazonKinesisAsync.class);
-                    assertThat(context).hasSingleBean(AmazonIdentityManagementAsync.class);
-                    assertThat(context).hasSingleBean(AWSSecretsManagerAsync.class);
-                    assertThat(context).hasSingleBean(AmazonCloudWatchAsync.class);
-                    assertThat(context).hasSingleBean(AWSLambdaAsync.class);
+                    assertThat(context).hasSingleBean(S3Client.class);
+                    assertThat(context).hasSingleBean(S3AsyncClient.class);
+                    assertThat(context).hasSingleBean(SqsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SqsClient.class);
+                    assertThat(context).hasSingleBean(SnsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SnsClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbAsyncClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbStreamsClient.class);
+                    assertThat(context).hasSingleBean(CloudWatchAsyncClient.class);
+                    assertThat(context).hasSingleBean(CloudWatchClient.class);
+                    assertThat(context).hasSingleBean(LambdaAsyncClient.class);
+                    assertThat(context).hasSingleBean(LambdaClient.class);
+                    assertThat(context).hasSingleBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).hasSingleBean(SecretsManagerClient.class);
+                    assertThat(context).hasSingleBean(KinesisAsyncClient.class);
+                    assertThat(context).hasSingleBean(KinesisClient.class);
+                    assertThat(context).hasSingleBean(IamAsyncClient.class);
+                    assertThat(context).hasSingleBean(IamClient.class);
                 });
     }
 
@@ -87,16 +109,16 @@ public class LocalStackAutoConfigurationTest {
                     LocalStackProperties properties = context.getBean(LocalStackProperties.class);
                     assertThat(properties.isEnabled()).isTrue();
 
-                    assertThat(context).hasSingleBean(AmazonS3.class);
-                    assertThat(context).hasSingleBean(AmazonSQSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonSNSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonDynamoDBAsync.class);
-                    assertThat(context).hasSingleBean(AmazonDynamoDBStreamsAsync.class);
-                    assertThat(context).hasSingleBean(AmazonKinesisAsync.class);
-                    assertThat(context).hasSingleBean(AmazonIdentityManagementAsync.class);
-                    assertThat(context).hasSingleBean(AWSSecretsManagerAsync.class);
-                    assertThat(context).hasSingleBean(AmazonCloudWatchAsync.class);
-                    assertThat(context).hasSingleBean(AWSLambdaAsync.class);
+                    assertThat(context).hasSingleBean(S3Client.class);
+                    assertThat(context).hasSingleBean(SqsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SnsAsyncClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbAsyncClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).hasSingleBean(CloudWatchAsyncClient.class);
+                    assertThat(context).hasSingleBean(LambdaAsyncClient.class);
+                    assertThat(context).hasSingleBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).hasSingleBean(KinesisAsyncClient.class);
+                    assertThat(context).hasSingleBean(IamAsyncClient.class);
                 });
     }
 
@@ -118,17 +140,17 @@ public class LocalStackAutoConfigurationTest {
                 )
                 .run((context) -> {
                     assertThat(context).hasSingleBean(LocalStackProperties.class);
-                    assertThat(context).hasSingleBean(AmazonS3.class);
-                    assertThat(context).hasSingleBean(AmazonSQSAsync.class);
-                    assertThat(context).hasSingleBean(AmazonSNSAsync.class);
+                    assertThat(context).hasSingleBean(S3Client.class);
+                    assertThat(context).hasSingleBean(SqsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SnsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(CloudWatchAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(LambdaAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(KinesisAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(IamAsyncClient.class);
 
-                    assertThat(context).doesNotHaveBean(AmazonDynamoDBAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonDynamoDBStreamsAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonKinesisAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonIdentityManagementAsync.class);
-                    assertThat(context).doesNotHaveBean(AWSSecretsManagerAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonCloudWatchAsync.class);
-                    assertThat(context).doesNotHaveBean(AWSLambdaAsync.class);
                 });
     }
 
@@ -151,16 +173,17 @@ public class LocalStackAutoConfigurationTest {
                 )
                 .run((context) -> {
                     assertThat(context).doesNotHaveBean(LocalStackProperties.class);
-                    assertThat(context).doesNotHaveBean(AmazonS3.class);
-                    assertThat(context).doesNotHaveBean(AmazonSQSAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonSNSAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonDynamoDBAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonDynamoDBStreamsAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonKinesisAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonIdentityManagementAsync.class);
-                    assertThat(context).doesNotHaveBean(AWSSecretsManagerAsync.class);
-                    assertThat(context).doesNotHaveBean(AmazonCloudWatchAsync.class);
-                    assertThat(context).doesNotHaveBean(AWSLambdaAsync.class);
+                    assertThat(context).doesNotHaveBean(S3Client.class);
+                    assertThat(context).doesNotHaveBean(SqsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SnsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(CloudWatchAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(LambdaAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(KinesisAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(IamAsyncClient.class);
+
                 });
     }
 }

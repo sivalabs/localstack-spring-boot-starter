@@ -1,15 +1,11 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchAsync;
-import com.amazonaws.services.cloudwatch.model.Dimension;
-import com.amazonaws.services.cloudwatch.model.MetricDatum;
-import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
-import com.amazonaws.services.cloudwatch.model.PutMetricDataResult;
-import com.amazonaws.services.cloudwatch.model.StandardUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import software.amazon.awssdk.services.cloudwatch.CloudWatchAsyncClient;
+import software.amazon.awssdk.services.cloudwatch.model.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,25 +14,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CloudWatchTest {
 
     @Autowired
-    private AmazonCloudWatchAsync amazonCloudWatch;
+    private CloudWatchAsyncClient cloudWatchAsyncClient;
 
     @Test
     void shouldWorkWithCloudWatch() {
-        Dimension dimension = new Dimension()
-                .withName("UNIQUE_PAGES")
-                .withValue("URLS");
+        Dimension dimension = Dimension.builder()
+                .name("UNIQUE_PAGES")
+                .value("URLS")
+                .build();
 
-        MetricDatum datum = new MetricDatum()
-                .withMetricName("PAGES_VISITED")
-                .withUnit(StandardUnit.None)
-                .withValue(20.0)
-                .withDimensions(dimension);
+        MetricDatum datum = MetricDatum.builder()
+                .metricName("PAGES_VISITED")
+                .unit(StandardUnit.NONE)
+                .value(20.0)
+                .dimensions(dimension)
+                .build();
 
-        PutMetricDataRequest request = new PutMetricDataRequest()
-                .withNamespace("SITE/TRAFFIC")
-                .withMetricData(datum);
+        PutMetricDataRequest request = PutMetricDataRequest.builder()
+                .namespace("SITE/TRAFFIC")
+                .metricData(datum)
+                .build();
 
-        PutMetricDataResult response = amazonCloudWatch.putMetricData(request);
+        cloudWatchAsyncClient.putMetricData(request);
+
+        PutMetricDataResponse response = cloudWatchAsyncClient.putMetricData(request).join();
         assertThat(response).isNotNull();
     }
 }
