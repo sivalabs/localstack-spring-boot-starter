@@ -18,7 +18,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>17</java.version>
-<!--		<aws-java-sdk.version>1.11.852</aws-java-sdk.version>-->
 		<aws.sdkv2.version>2.20.143</aws.sdkv2.version>
 		<testcontainers.version>1.19.0</testcontainers.version>
 		<localstack-starter.version>0.0.5-SNAPSHOT</localstack-starter.version>

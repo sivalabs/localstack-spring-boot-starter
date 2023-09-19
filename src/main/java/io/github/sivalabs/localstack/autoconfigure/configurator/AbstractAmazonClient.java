@@ -13,10 +13,6 @@ import java.net.URI;
 public abstract class AbstractAmazonClient {
     protected final LocalStackContainer localStackContainer;
 
-//    protected EndpointConfiguration getEndpointConfiguration(Service service) {
-//        return localStackContainer.getEndpointConfiguration(service);
-//    }
-
     protected URI getEndpoint(Service service) { return localStackContainer.getEndpointOverride(service); }
 
     protected AwsCredentialsProvider getCredentialsProvider() {

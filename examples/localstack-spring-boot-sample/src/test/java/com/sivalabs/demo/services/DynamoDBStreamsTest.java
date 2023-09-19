@@ -65,16 +65,13 @@ class DynamoDBStreamsTest {
                     .streamSpecification(streamSpecification)
                     .build();
 
-            System.out.println("Issuing CreateTable request for " + tableName);
             dynamoDBClient.createTable(createTableRequest).join();
-            System.out.println("Waiting for " + tableName + " to be created...");
 
             try {
                 var waiterResponse = asyncWaiter.waitUntilTableExists(b -> b.tableName(tableName),
                         o -> o.waitTimeout(Duration.ofMinutes(1)));
                 waiterResponse.whenComplete((r, t) -> {
                     if (t == null) {
-                        // print out the matched ResourceNotFoundException
                         r.matched().exception().ifPresent(System.out::println);
                     }
                 }).join();
