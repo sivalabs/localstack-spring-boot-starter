@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.sns.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(SnsAsyncClient.class)
+@ConditionalOnClass({SnsAsyncClient.class, SnsClient.class})
 public class AmazonSNSConfiguration extends AbstractAmazonClient {
 
     public AmazonSNSConfiguration(LocalStackContainer localStackContainer) {

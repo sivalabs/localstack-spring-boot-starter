@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.sqs.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(SqsAsyncClient.class)
+@ConditionalOnClass({SqsAsyncClient.class, SqsClient.class})
 public class AmazonSQSConfiguration extends AbstractAmazonClient {
 
     public AmazonSQSConfiguration(LocalStackContainer localStackContainer) {

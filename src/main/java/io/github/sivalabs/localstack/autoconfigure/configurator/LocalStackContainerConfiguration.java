@@ -33,11 +33,9 @@ public class LocalStackContainerConfiguration {
         log.info("Starting Localstack server. Docker image: {}", properties.getDockerImage());
 
         LocalStackContainer localStackContainer = new EmbeddedLocalStackContainer(properties.getDockerImage());
-        localStackContainer.withEnv("EDGE_PORT", String.valueOf(properties.getEdgePort()))
-                .withEnv("DEFAULT_REGION", properties.getDefaultRegion())
+        localStackContainer.withEnv("GATEWAY_LISTEN", String.valueOf(properties.getGatewayListen()))
                 .withEnv("HOSTNAME", properties.getHostname())
-                .withEnv("HOSTNAME_EXTERNAL", properties.getHostnameExternal())
-                .withEnv("USE_SSL", String.valueOf(properties.isUseSsl()));
+                .withEnv("LOCALSTACK_HOST", properties.getLocalstackHost());
 
         for (LocalStackContainer.Service service : properties.getServices()) {
             localStackContainer.withServices(service);

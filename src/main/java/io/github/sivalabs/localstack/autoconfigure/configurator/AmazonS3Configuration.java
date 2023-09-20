@@ -15,7 +15,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.s3.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(S3Client.class)
+@ConditionalOnClass({S3Client.class, S3AsyncClient.class})
 public class AmazonS3Configuration extends AbstractAmazonClient {
 
     public AmazonS3Configuration(LocalStackContainer localStackContainer) {
@@ -25,6 +25,7 @@ public class AmazonS3Configuration extends AbstractAmazonClient {
     @Bean
     @Primary
     public S3Client amazonS3LocalStack() {
+        System.out.println("Tring to create S3Client");
         S3Configuration config = S3Configuration.builder()
                 .pathStyleAccessEnabled(true)
                 .build();

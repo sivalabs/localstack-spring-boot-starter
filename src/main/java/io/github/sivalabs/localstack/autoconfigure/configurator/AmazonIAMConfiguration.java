@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.iam.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(IamAsyncClient.class)
+@ConditionalOnClass({IamAsyncClient.class, IamClient.class})
 public class AmazonIAMConfiguration extends AbstractAmazonClient {
 
     public AmazonIAMConfiguration(LocalStackContainer localStackContainer) {

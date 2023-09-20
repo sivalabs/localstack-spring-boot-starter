@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.cloudwatch.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(CloudWatchAsyncClient.class)
+@ConditionalOnClass({CloudWatchAsyncClient.class,  CloudWatchClient.class})
 public class AmazonCloudWatchConfiguration extends AbstractAmazonClient {
     public AmazonCloudWatchConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);

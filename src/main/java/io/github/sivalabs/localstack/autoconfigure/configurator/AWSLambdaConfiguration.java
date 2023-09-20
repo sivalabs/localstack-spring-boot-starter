@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.lambda.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(LambdaAsyncClient.class)
+@ConditionalOnClass({LambdaAsyncClient.class, LambdaClient.class})
 public class AWSLambdaConfiguration extends AbstractAmazonClient {
     public AWSLambdaConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);

@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.secretsmanager.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(SecretsManagerAsyncClient.class)
+@ConditionalOnClass({SecretsManagerAsyncClient.class, SecretsManagerClient.class})
 public class AWSSecretsManagerConfiguration extends AbstractAmazonClient {
     public AWSSecretsManagerConfiguration(LocalStackContainer localStackContainer) {
         super(localStackContainer);

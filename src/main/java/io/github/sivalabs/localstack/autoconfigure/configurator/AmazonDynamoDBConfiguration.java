@@ -12,7 +12,7 @@ import static io.github.sivalabs.localstack.LocalStackProperties.ENABLE_SERVICE_
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.DYNAMODB;
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.dynamodb.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(DynamoDbAsyncClient.class)
+@ConditionalOnClass({DynamoDbAsyncClient.class, DynamoDbClient.class})
 public class AmazonDynamoDBConfiguration extends AbstractAmazonClient {
 
     public AmazonDynamoDBConfiguration(LocalStackContainer localStackContainer) {

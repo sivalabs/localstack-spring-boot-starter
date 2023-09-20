@@ -20,7 +20,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.kinesis.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(KinesisAsyncClient.class)
+@ConditionalOnClass({KinesisAsyncClient.class, KinesisClient.class})
 public class AmazonKinesisConfiguration extends AbstractAmazonClient {
 
     public AmazonKinesisConfiguration(LocalStackContainer localStackContainer) {

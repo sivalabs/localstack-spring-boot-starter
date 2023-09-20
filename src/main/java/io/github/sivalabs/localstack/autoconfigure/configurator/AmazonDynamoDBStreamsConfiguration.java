@@ -13,7 +13,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 
 @ConditionalOnLocalStackService
 @ConditionalOnProperty(name = "localstack.dynamodbstreams.enabled", havingValue = "true", matchIfMissing = ENABLE_SERVICE_BY_DEFAULT)
-@ConditionalOnClass(DynamoDbStreamsAsyncClient.class)
+@ConditionalOnClass({DynamoDbStreamsAsyncClient.class, DynamoDbStreamsClient.class})
 public class AmazonDynamoDBStreamsConfiguration extends AbstractAmazonClient {
 
     public AmazonDynamoDBStreamsConfiguration(LocalStackContainer localStackContainer) {
