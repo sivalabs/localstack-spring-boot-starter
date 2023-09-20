@@ -16,10 +16,12 @@ public class LocalStackProperties {
     public static final boolean ENABLE_SERVICE_BY_DEFAULT = true;
 
     private boolean enabled = true;
-    private int gatewayListen = 4566;
+    private int edgePort = 4566;
+    private String defaultRegion = "us-east-1";
     private String hostname = "localhost";
-    private String localstackHost = "localhost";
+    private String hostnameExternal = "localhost";
     private String dockerImage = "localstack/localstack:2.0.0";
+    private boolean useSsl = false;
     private Collection<LocalStackContainer.Service> services;
 
     private S3Properties s3 = new S3Properties();
