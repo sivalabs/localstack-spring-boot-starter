@@ -110,15 +110,25 @@ public class LocalStackAutoConfigurationTest {
                     assertThat(properties.isEnabled()).isTrue();
 
                     assertThat(context).hasSingleBean(S3Client.class);
+                    assertThat(context).hasSingleBean(S3AsyncClient.class);
                     assertThat(context).hasSingleBean(SqsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SqsClient.class);
                     assertThat(context).hasSingleBean(SnsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SnsClient.class);
                     assertThat(context).hasSingleBean(DynamoDbAsyncClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbClient.class);
                     assertThat(context).hasSingleBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).hasSingleBean(DynamoDbStreamsClient.class);
                     assertThat(context).hasSingleBean(CloudWatchAsyncClient.class);
+                    assertThat(context).hasSingleBean(CloudWatchClient.class);
                     assertThat(context).hasSingleBean(LambdaAsyncClient.class);
+                    assertThat(context).hasSingleBean(LambdaClient.class);
                     assertThat(context).hasSingleBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).hasSingleBean(SecretsManagerClient.class);
                     assertThat(context).hasSingleBean(KinesisAsyncClient.class);
+                    assertThat(context).hasSingleBean(KinesisClient.class);
                     assertThat(context).hasSingleBean(IamAsyncClient.class);
+                    assertThat(context).hasSingleBean(IamClient.class);
                 });
     }
 
@@ -141,15 +151,25 @@ public class LocalStackAutoConfigurationTest {
                 .run((context) -> {
                     assertThat(context).hasSingleBean(LocalStackProperties.class);
                     assertThat(context).hasSingleBean(S3Client.class);
+                    assertThat(context).hasSingleBean(S3AsyncClient.class);
                     assertThat(context).hasSingleBean(SqsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SqsClient.class);
                     assertThat(context).hasSingleBean(SnsAsyncClient.class);
+                    assertThat(context).hasSingleBean(SnsClient.class);
                     assertThat(context).doesNotHaveBean(DynamoDbAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbClient.class);
                     assertThat(context).doesNotHaveBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbStreamsClient.class);
                     assertThat(context).doesNotHaveBean(CloudWatchAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(CloudWatchClient.class);
                     assertThat(context).doesNotHaveBean(LambdaAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(LambdaClient.class);
                     assertThat(context).doesNotHaveBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SecretsManagerClient.class);
                     assertThat(context).doesNotHaveBean(KinesisAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(KinesisClient.class);
                     assertThat(context).doesNotHaveBean(IamAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(IamClient.class);
 
                 });
     }
@@ -174,16 +194,25 @@ public class LocalStackAutoConfigurationTest {
                 .run((context) -> {
                     assertThat(context).doesNotHaveBean(LocalStackProperties.class);
                     assertThat(context).doesNotHaveBean(S3Client.class);
+                    assertThat(context).doesNotHaveBean(S3AsyncClient.class);
                     assertThat(context).doesNotHaveBean(SqsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SqsClient.class);
                     assertThat(context).doesNotHaveBean(SnsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SnsClient.class);
                     assertThat(context).doesNotHaveBean(DynamoDbAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbClient.class);
                     assertThat(context).doesNotHaveBean(DynamoDbStreamsAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(DynamoDbStreamsClient.class);
                     assertThat(context).doesNotHaveBean(CloudWatchAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(CloudWatchClient.class);
                     assertThat(context).doesNotHaveBean(LambdaAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(LambdaClient.class);
                     assertThat(context).doesNotHaveBean(SecretsManagerAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(SecretsManagerClient.class);
                     assertThat(context).doesNotHaveBean(KinesisAsyncClient.class);
+                    assertThat(context).doesNotHaveBean(KinesisClient.class);
                     assertThat(context).doesNotHaveBean(IamAsyncClient.class);
-
+                    assertThat(context).doesNotHaveBean(IamClient.class);
                 });
     }
 }
