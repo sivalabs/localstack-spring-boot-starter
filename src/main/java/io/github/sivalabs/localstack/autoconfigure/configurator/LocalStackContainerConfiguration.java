@@ -59,7 +59,7 @@ public class LocalStackContainerConfiguration {
         map.put("localstack.region", localStack.getRegion());
         String prefix = "localstack.";
         for (LocalStackContainer.Service service : properties.getServices()) {
-            map.put(prefix + service + ".endpoint", localStack.getEndpointConfiguration(service).getServiceEndpoint());
+            map.put(prefix + service + ".endpoint", localStack.getEndpointOverride(service));
         }
         log.info("Started Localstack. Connection details: {}", map);
 

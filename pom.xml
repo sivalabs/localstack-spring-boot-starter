@@ -4,7 +4,7 @@
     <groupId>io.github.sivalabs</groupId>
     <artifactId>localstack-spring-boot-starter</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <name>localstack-spring-boot-starter</name>
     <description>SpringBoot starter for LocalStack</description>
     <url>https://github.com/sivalabs/localstack-spring-boot-starter</url>
@@ -53,8 +53,8 @@
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <spring-boot.version>2.7.10</spring-boot.version>
-        <aws-java-sdk.version>1.11.852</aws-java-sdk.version>
-        <testcontainers.version>1.17.6</testcontainers.version>
+        <aws.sdkv2.version>2.20.143</aws.sdkv2.version>
+        <testcontainers.version>1.19.0</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -74,9 +74,9 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-bom</artifactId>
-                <version>${aws-java-sdk.version}</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>${aws.sdkv2.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -203,10 +203,9 @@
             <artifactId>localstack</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>${aws-java-sdk.version}</version>
-            <scope>provided</scope>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>aws-sdk-java</artifactId>
+            <version>${aws.sdkv2.version}</version>
         </dependency>
 
         <dependency>

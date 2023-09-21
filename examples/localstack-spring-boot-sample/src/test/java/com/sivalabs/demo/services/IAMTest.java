@@ -1,14 +1,12 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.identitymanagement.AmazonIdentityManagementAsync;
-import com.amazonaws.services.identitymanagement.model.CreateGroupRequest;
-import com.amazonaws.services.identitymanagement.model.CreateGroupResult;
-import com.amazonaws.services.identitymanagement.model.GetGroupRequest;
-import com.amazonaws.services.identitymanagement.model.GetGroupResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import software.amazon.awssdk.services.iam.IamAsyncClient;
+import software.amazon.awssdk.services.iam.model.CreateGroupRequest;
+import software.amazon.awssdk.services.iam.model.GetGroupRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -18,16 +16,16 @@ public class IAMTest {
     private static final String test_group = "test_group";
 
     @Autowired
-    private AmazonIdentityManagementAsync iamAsync;
+    private IamAsyncClient iamAsync;
 
     @Test
     void shouldWorkWithAWSIAM() {
-        CreateGroupRequest request = new CreateGroupRequest().withGroupName(test_group);
-        CreateGroupResult result = iamAsync.createGroup(request);
+        var request = CreateGroupRequest.builder().groupName(test_group).build();
+        var result = iamAsync.createGroup(request).join();
         assertThat(result).isNotNull();
 
-        GetGroupRequest getGroupRequest = new GetGroupRequest().withGroupName(test_group);
-        GetGroupResult group = iamAsync.getGroup(getGroupRequest);
+        var getGroupRequest = GetGroupRequest.builder().groupName(test_group).build();
+        var group = iamAsync.getGroup(getGroupRequest).join();
         assertThat(group).isNotNull();
     }
 }

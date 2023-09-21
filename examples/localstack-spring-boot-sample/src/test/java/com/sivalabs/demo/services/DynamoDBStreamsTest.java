@@ -1,181 +1,185 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBStreamsAsync;
-import com.amazonaws.services.dynamodbv2.model.AttributeAction;
-import com.amazonaws.services.dynamodbv2.model.AttributeDefinition;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.AttributeValueUpdate;
-import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
-import com.amazonaws.services.dynamodbv2.model.DescribeStreamRequest;
-import com.amazonaws.services.dynamodbv2.model.DescribeStreamResult;
-import com.amazonaws.services.dynamodbv2.model.DescribeTableResult;
-import com.amazonaws.services.dynamodbv2.model.GetRecordsRequest;
-import com.amazonaws.services.dynamodbv2.model.GetRecordsResult;
-import com.amazonaws.services.dynamodbv2.model.GetShardIteratorRequest;
-import com.amazonaws.services.dynamodbv2.model.GetShardIteratorResult;
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement;
-import com.amazonaws.services.dynamodbv2.model.KeyType;
-import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
-import com.amazonaws.services.dynamodbv2.model.Record;
-import com.amazonaws.services.dynamodbv2.model.Shard;
-import com.amazonaws.services.dynamodbv2.model.ShardIteratorType;
-import com.amazonaws.services.dynamodbv2.model.StreamSpecification;
-import com.amazonaws.services.dynamodbv2.model.StreamViewType;
-import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import software.amazon.awssdk.core.retry.backoff.FixedDelayBackoffStrategy;
+import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
+import software.amazon.awssdk.services.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.streams.DynamoDbStreamsAsyncClient;
+import software.amazon.awssdk.services.dynamodb.waiters.DynamoDbAsyncWaiter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.Executors;
 
 @SpringBootTest
 @Slf4j
 class DynamoDBStreamsTest {
 
     @Autowired
-    private AmazonDynamoDBAsync dynamoDBClient;
+    private DynamoDbAsyncClient dynamoDBClient;
 
     @Autowired
-    private AmazonDynamoDBStreamsAsync streamsClient;
+    private DynamoDbStreamsAsyncClient streamsClient;
 
     @Test
     void shouldBeAbleToDoBasicOperationsWithDynamoDB() {
-        // Source: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.LowLevel.Walkthrough.html
-        // Create a table, with a stream enabled
-        String tableName = "TestTableForStreams";
+        try (DynamoDbAsyncWaiter asyncWaiter =
+                DynamoDbAsyncWaiter.builder()
+                        .client(dynamoDBClient)
+                        .overrideConfiguration(o -> o.backoffStrategy(
+                                FixedDelayBackoffStrategy.create(Duration.ofSeconds(2))))
+                        .scheduledExecutorService(Executors.newScheduledThreadPool(3))
+                        .build()) {
 
-        ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>(
-                Arrays.asList(new AttributeDefinition()
-                        .withAttributeName("Id")
-                        .withAttributeType("N")));
+            // Source: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.LowLevel.Walkthrough.html
+            // Create a table, with a stream enabled
+            String tableName = "TestTableForStreams";
 
-        ArrayList<KeySchemaElement> keySchema = new ArrayList<>(
-                Arrays.asList(new KeySchemaElement()
-                        .withAttributeName("Id")
-                        .withKeyType(KeyType.HASH))); // Partition key
+            ArrayList<AttributeDefinition> attributeDefinitions = new ArrayList<>(
+                    Collections.singletonList(AttributeDefinition.builder()
+                            .attributeName("Id")
+                            .attributeType("N").build()));
 
-        StreamSpecification streamSpecification = new StreamSpecification()
-                .withStreamEnabled(true)
-                .withStreamViewType(StreamViewType.NEW_AND_OLD_IMAGES);
+            ArrayList<KeySchemaElement> keySchema = new ArrayList<>(
+                    Collections.singletonList(KeySchemaElement.builder()
+                            .attributeName("Id")
+                            .keyType(KeyType.HASH)
+                            .build())); // Partition key
 
-        CreateTableRequest createTableRequest = new CreateTableRequest().withTableName(tableName)
-                .withKeySchema(keySchema).withAttributeDefinitions(attributeDefinitions)
-                .withProvisionedThroughput(new ProvisionedThroughput()
-                        .withReadCapacityUnits(10L)
-                        .withWriteCapacityUnits(10L))
-                .withStreamSpecification(streamSpecification);
+            StreamSpecification streamSpecification = StreamSpecification.builder()
+                    .streamEnabled(true)
+                    .streamViewType(StreamViewType.NEW_AND_OLD_IMAGES)
+                    .build();
 
-        System.out.println("Issuing CreateTable request for " + tableName);
-        dynamoDBClient.createTable(createTableRequest);
-        System.out.println("Waiting for " + tableName + " to be created...");
+            CreateTableRequest createTableRequest = CreateTableRequest.builder()
+                    .tableName(tableName)
+                    .keySchema(keySchema)
+                    .attributeDefinitions(attributeDefinitions)
+                    .provisionedThroughput(ProvisionedThroughput.builder()
+                            .readCapacityUnits(10L)
+                            .writeCapacityUnits(10L)
+                            .build())
+                    .streamSpecification(streamSpecification)
+                    .build();
 
-        try {
-            TableUtils.waitUntilActive(dynamoDBClient, tableName);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            dynamoDBClient.createTable(createTableRequest).join();
 
-        // Print the stream settings for the table
-        DescribeTableResult describeTableResult = dynamoDBClient.describeTable(tableName);
-        String streamArn = describeTableResult.getTable().getLatestStreamArn();
-        System.out.println("Current stream ARN for " + tableName + ": " +
-                describeTableResult.getTable().getLatestStreamArn());
-        StreamSpecification streamSpec = describeTableResult.getTable().getStreamSpecification();
-        System.out.println("Stream enabled: " + streamSpec.getStreamEnabled());
-        System.out.println("Update view type: " + streamSpec.getStreamViewType());
-        System.out.println();
-
-        // Generate write activity in the table
-
-        System.out.println("Performing write activities on " + tableName);
-        int maxItemCount = 10;
-        for (Integer i = 1; i <= maxItemCount; i++) {
-            System.out.println("Processing item " + i + " of " + maxItemCount);
-
-            // Write a new item
-            Map<String, AttributeValue> item = new HashMap<>();
-            item.put("Id", new AttributeValue().withN(i.toString()));
-            item.put("Message", new AttributeValue().withS("New item!"));
-            dynamoDBClient.putItem(tableName, item);
-
-
-            // Update the item
-            Map<String, AttributeValue> key = new HashMap<>();
-            key.put("Id", new AttributeValue().withN(i.toString()));
-            Map<String, AttributeValueUpdate> attributeUpdates = new HashMap<>();
-            attributeUpdates.put("Message", new AttributeValueUpdate()
-                    .withAction(AttributeAction.PUT)
-                    .withValue(new AttributeValue()
-                            .withS("This item has changed")));
-            dynamoDBClient.updateItem(tableName, key, attributeUpdates);
-
-            // Delete the item
-            dynamoDBClient.deleteItem(tableName, key);
-        }
-
-        // Get all the shard IDs from the stream.  Note that DescribeStream returns
-        // the shard IDs one page at a time.
-        String lastEvaluatedShardId = null;
-
-        do {
-            DescribeStreamResult describeStreamResult = streamsClient.describeStream(
-                    new DescribeStreamRequest()
-                            .withStreamArn(streamArn)
-                            .withExclusiveStartShardId(lastEvaluatedShardId));
-            List<Shard> shards = describeStreamResult.getStreamDescription().getShards();
-
-            // Process each shard on this page
-
-            for (Shard shard : shards) {
-                String shardId = shard.getShardId();
-                System.out.println("Shard: " + shard);
-
-                // Get an iterator for the current shard
-
-                GetShardIteratorRequest getShardIteratorRequest = new GetShardIteratorRequest()
-                        .withStreamArn(streamArn)
-                        .withShardId(shardId)
-                        .withShardIteratorType(ShardIteratorType.TRIM_HORIZON);
-                GetShardIteratorResult getShardIteratorResult =
-                        streamsClient.getShardIterator(getShardIteratorRequest);
-                String currentShardIter = getShardIteratorResult.getShardIterator();
-
-                // Shard iterator is not null until the Shard is sealed (marked as READ_ONLY).
-                // To prevent running the loop until the Shard is sealed, which will be on average
-                // 4 hours, we process only the items that were written into DynamoDB and then exit.
-                int processedRecordCount = 0;
-                while (currentShardIter != null && processedRecordCount < maxItemCount) {
-                    System.out.println("    Shard iterator: " + currentShardIter);
-
-                    // Use the shard iterator to read the stream records
-
-                    GetRecordsResult getRecordsResult = streamsClient.getRecords(new GetRecordsRequest()
-                            .withShardIterator(currentShardIter));
-                    List<Record> records = getRecordsResult.getRecords();
-                    for (Record record : records) {
-                        System.out.println("        " + record.getDynamodb());
+            try {
+                var waiterResponse = asyncWaiter.waitUntilTableExists(b -> b.tableName(tableName),
+                        o -> o.waitTimeout(Duration.ofMinutes(1)));
+                waiterResponse.whenComplete((r, t) -> {
+                    if (t == null) {
+                        r.matched().exception().ifPresent(System.out::println);
                     }
-                    processedRecordCount += records.size();
-                    currentShardIter = getRecordsResult.getNextShardIterator();
-                }
+                }).join();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
 
-            // If LastEvaluatedShardId is set, then there is
-            // at least one more page of shard IDs to retrieve
-            lastEvaluatedShardId = describeStreamResult.getStreamDescription().getLastEvaluatedShardId();
+            // Print the stream settings for the table
+            var describeTableResult = dynamoDBClient.describeTable(DescribeTableRequest.builder().tableName(tableName).build()).join();
+            String streamArn = describeTableResult.table().latestStreamArn();
+            System.out.println("Current stream ARN for " + tableName + ": " + streamArn);
+            StreamSpecification streamSpec = describeTableResult.table().streamSpecification();
+            System.out.println("Stream enabled: " + streamSpec.streamEnabled());
+            System.out.println("Update view type: " + streamSpec.streamViewType());
+            System.out.println();
 
-        } while (lastEvaluatedShardId != null);
+            // Generate write activity in the table
 
-        // Delete the table
-        System.out.println("Deleting the table...");
-        dynamoDBClient.deleteTable(tableName);
+            System.out.println("Performing write activities on " + tableName);
+            int maxItemCount = 10;
+            for (Integer i = 1; i <= maxItemCount; i++) {
+                System.out.println("Processing item " + i + " of " + maxItemCount);
 
-        System.out.println("Demo complete");
+                // Write a new item
+                Map<String, AttributeValue> item = new HashMap<>();
+                item.put("Id", AttributeValue.builder().n(i.toString()).build());
+                item.put("Message", AttributeValue.builder().s("New item!").build());
+                dynamoDBClient.putItem(PutItemRequest.builder().item(item).tableName(tableName).build()).join();
+
+
+                // Update the item
+                Map<String, AttributeValue> key = new HashMap<>();
+                key.put("Id", AttributeValue.builder().n(i.toString()).build());
+                Map<String, AttributeValueUpdate> attributeUpdates = new HashMap<>();
+                attributeUpdates.put("Message", AttributeValueUpdate.builder()
+                        .action(AttributeAction.PUT)
+                        .value(AttributeValue.fromS("This item has changed"))
+                        .build());
+                dynamoDBClient.updateItem(UpdateItemRequest.builder().attributeUpdates(attributeUpdates).key(key).tableName(tableName).build()).join();
+
+                // Delete the item
+                dynamoDBClient.deleteItem(DeleteItemRequest.builder().key(key).tableName(tableName).build()).join();
+            }
+
+            // Get all the shard IDs from the stream.  Note that DescribeStream returns
+            // the shard IDs one page at a time.
+            String lastEvaluatedShardId = null;
+
+            do {
+                var describeStreamResult = streamsClient.describeStream(
+                        DescribeStreamRequest.builder()
+                                .streamArn(streamArn)
+                                .exclusiveStartShardId(lastEvaluatedShardId)
+                                .build()).join();
+                List<Shard> shards = describeStreamResult.streamDescription().shards();
+
+                // Process each shard on this page
+
+                for (Shard shard : shards) {
+                    String shardId = shard.shardId();
+                    System.out.println("Shard: " + shard);
+
+                    // Get an iterator for the current shard
+
+                    GetShardIteratorRequest getShardIteratorRequest =
+                            GetShardIteratorRequest.builder()
+                                    .streamArn(streamArn)
+                                    .shardId(shardId)
+                                    .shardIteratorType(ShardIteratorType.TRIM_HORIZON)
+                                    .build();
+
+                    var getShardIteratorResult =
+                            streamsClient.getShardIterator(getShardIteratorRequest).join();
+                    String currentShardIter = getShardIteratorResult.shardIterator();
+
+                    // Shard iterator is not null until the Shard is sealed (marked as READ_ONLY).
+                    // To prevent running the loop until the Shard is sealed, which will be on average
+                    // 4 hours, we process only the items that were written into DynamoDB and then exit.
+                    int processedRecordCount = 0;
+                    while (currentShardIter != null && processedRecordCount < maxItemCount) {
+                        System.out.println("    Shard iterator: " + currentShardIter);
+
+                        // Use the shard iterator to read the stream records
+
+                        var getRecordsResult = streamsClient.getRecords(
+                                GetRecordsRequest.builder()
+                                        .shardIterator(currentShardIter)
+                                        .build()).join();
+                        var records = getRecordsResult.records();
+                        for (var record : records) {
+                            System.out.println("        " + record.dynamodb());
+                        }
+                        processedRecordCount += records.size();
+                        currentShardIter = getRecordsResult.nextShardIterator();
+                    }
+                }
+
+                // If LastEvaluatedShardId is set, then there is
+                // at least one more page of shard IDs to retrieve
+                lastEvaluatedShardId = describeStreamResult.streamDescription().lastEvaluatedShardId();
+
+            } while (lastEvaluatedShardId != null);
+
+            // Delete the table
+            System.out.println("Deleting the table...");
+            dynamoDBClient.deleteTable(DeleteTableRequest.builder().tableName(tableName).build()).join();
+
+            System.out.println("Demo complete");
+        }
     }
 }

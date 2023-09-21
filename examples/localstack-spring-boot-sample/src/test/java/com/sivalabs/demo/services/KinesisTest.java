@@ -1,18 +1,16 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.kinesis.AmazonKinesisAsync;
-import com.amazonaws.services.kinesis.model.CreateStreamRequest;
-import com.amazonaws.services.kinesis.model.DescribeStreamRequest;
-import com.amazonaws.services.kinesis.model.DescribeStreamResult;
-import com.amazonaws.services.kinesis.model.ListStreamsRequest;
-import com.amazonaws.services.kinesis.model.ListStreamsResult;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import software.amazon.awssdk.core.retry.backoff.BackoffStrategy;
+import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
+import software.amazon.awssdk.services.kinesis.model.*;
+import software.amazon.awssdk.services.kinesis.KinesisAsyncClient;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,65 +20,82 @@ public class KinesisTest {
     private static final String streamName = "test_kinesis_stream";
 
     @Autowired
-    private AmazonKinesisAsync amazonKinesis;
+    private KinesisAsyncClient amazonKinesis;
+
 
     @Test
-    void shouldCreateAndListKinesisStreams() throws Exception {
-        createStream(streamName, 2);
+    void shouldCreateAndListKinesisStreams() {
         List<String> streams = listStreams();
+        assertThat(streams).doesNotContain(streamName);
+        createStream(2);
+        streams = listStreams();
         assertThat(streams).contains(streamName);
+        deleteStream();
     }
 
     private List<String> listStreams() {
-        ListStreamsRequest listStreamsRequest = new ListStreamsRequest();
-        listStreamsRequest.setLimit(10);
-        ListStreamsResult listStreamsResult = amazonKinesis.listStreams(listStreamsRequest);
-        List<String> streamNames = listStreamsResult.getStreamNames();
-        while (listStreamsResult.isHasMoreStreams()) {
-            if (streamNames.size() > 0) {
-                listStreamsRequest.setExclusiveStartStreamName(streamNames.get(streamNames.size() - 1));
-            }
+        ListStreamsRequest listStreamsRequest = ListStreamsRequest.builder().limit(2).build();
+        var listStreamsResult = amazonKinesis.listStreams(listStreamsRequest).join();
+        List<String> streamNames = listStreamsResult.streamNames();
+        System.out.println("found " + streamNames + " streams");
+        while (listStreamsResult.hasMoreStreams()) {
+            var req = ListStreamsRequest.builder()
+                    .limit(2)
+                    .exclusiveStartStreamName(streamNames.get(streamNames.size() - 1))
+                    .build();
 
-            listStreamsResult = amazonKinesis.listStreams(listStreamsRequest);
-            streamNames.addAll(listStreamsResult.getStreamNames());
+            listStreamsResult = amazonKinesis.listStreams(req).join();
+            streamNames.addAll(listStreamsResult.streamNames());
         }
         return streamNames;
     }
 
-    private void createStream(String streamName, Integer streamSize) throws InterruptedException {
+    private void createStream(Integer streamSize) {
         // Create a stream. The number of shards determines the provisioned throughput.
-        CreateStreamRequest createStreamRequest = new CreateStreamRequest();
-        createStreamRequest.setStreamName(streamName);
-        createStreamRequest.setShardCount(streamSize);
-        amazonKinesis.createStream(createStreamRequest);
-        // The stream is now being created. Wait for it to become active.
-        waitForStreamToBecomeAvailable(streamName);
+        var createStreamRequest = CreateStreamRequest.builder().streamName(streamName).shardCount(streamSize).build();
+        System.out.println("Creating stream " + streamName);
+        var response = amazonKinesis.createStream(createStreamRequest).join();
+        assertThat(response.sdkHttpResponse().statusCode()).isEqualTo(200);
+        var waiterConfig = WaiterOverrideConfiguration.builder()
+                .waitTimeout(Duration.ofSeconds(180))
+                .maxAttempts(10)
+                .backoffStrategy(BackoffStrategy.defaultStrategy())
+                .build();
+        var waiterResponse = amazonKinesis.waiter()
+                .waitUntilStreamExists(
+                        DescribeStreamRequest.builder().streamName(streamName).limit(2).build(),
+                        waiterConfig);
+        System.out.println("Waiting for stream to exist...");
+        waiterResponse.whenComplete((r, t) -> {
+            r.matched().exception().ifPresent(System.out::println);
+            assertThat(t).isNull();
+            assertThat(r.matched().exception().isPresent()).isFalse();
+            assertThat(r.matched().response().isPresent()).isTrue();
+            assertThat(r.matched().response().get().streamDescription().streamStatus()).isEqualTo(StreamStatus.ACTIVE);
+        }).join();
     }
 
-    private void waitForStreamToBecomeAvailable(String streamName) throws InterruptedException {
-        System.out.printf("Waiting for %s to become ACTIVE...\n", streamName);
+    private void deleteStream() {
+        var deleteStreamRequest = DeleteStreamRequest.builder().streamName(streamName).build();
+        var deleteStreamResult = amazonKinesis.deleteStream(deleteStreamRequest).join();
+        assertThat(deleteStreamResult.sdkHttpResponse().statusCode()).isEqualTo(200);
+        var waiterConfig = WaiterOverrideConfiguration.builder()
+                .waitTimeout(Duration.ofSeconds(180))
+                .maxAttempts(10)
+                .backoffStrategy(BackoffStrategy.defaultStrategy())
+                .build();
+        System.out.println("Waiting for stream to be deleted...");
+        var waiterResponse = amazonKinesis.waiter()
+                .waitUntilStreamNotExists(
+                        DescribeStreamRequest.builder().streamName(streamName).limit(2).build(),
+                        waiterConfig);
 
-        long startTime = System.currentTimeMillis();
-        long endTime = startTime + TimeUnit.MINUTES.toMillis(20);
-        while (System.currentTimeMillis() < endTime) {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(10));
-
-            try {
-                DescribeStreamRequest describeStreamRequest = new DescribeStreamRequest();
-                describeStreamRequest.setStreamName(streamName);
-                // ask for no more than 10 shards at a time -- this is an optional parameter
-                describeStreamRequest.setLimit(10);
-                DescribeStreamResult describeStreamResponse = amazonKinesis.describeStream(describeStreamRequest);
-
-                String streamStatus = describeStreamResponse.getStreamDescription().getStreamStatus();
-                System.out.printf("\t- current state: %s\n", streamStatus);
-                if ("ACTIVE".equals(streamStatus)) {
-                    return;
-                }
-            } catch (Exception e) {
-                throw e;
-            }
-        }
-        throw new RuntimeException(String.format("Stream %s never became active", streamName));
+        waiterResponse.whenComplete((r, t) -> {
+            System.out.println("Stream deleted");
+            r.matched().exception().ifPresent(System.out::println);
+            assertThat(t).isNull();
+            assertThat(r.matched().exception().isPresent()).isTrue();
+            assertThat(r.matched().exception().get()).isInstanceOf(ResourceNotFoundException.class);
+        }).join();
     }
 }

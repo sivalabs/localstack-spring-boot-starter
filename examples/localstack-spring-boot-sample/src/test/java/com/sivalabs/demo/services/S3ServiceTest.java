@@ -1,6 +1,5 @@
 package com.sivalabs.demo.services;
 
-import com.amazonaws.services.s3.model.S3Object;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,9 +33,9 @@ class S3ServiceTest {
     }
 
     @Test
-    public void shouldStoreAndRetrieveDataFromS3Bucket() {
+    public void shouldStoreAndRetrieveDataFromS3Bucket() throws IOException {
         s3Service.store(bucketName, "my-key-1", "my-value-1");
-        S3Object s3Object = s3Service.getObject(bucketName, "my-key-1");
-        assertThat(s3Object.getObjectContent()).hasSameContentAs(new ByteArrayInputStream("my-value-1".getBytes()));
+        var response = s3Service.getObject(bucketName, "my-key-1");
+        assertThat(new String(response.readAllBytes(), StandardCharsets.UTF_8)).isEqualTo("my-value-1");
     }
 }
